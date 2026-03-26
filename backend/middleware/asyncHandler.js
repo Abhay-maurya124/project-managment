@@ -1,0 +1,3 @@
+export const asynchandler = (thefunction) => (req, res, next) => {
+  Promise.resolve(thefunction(req, res, next)).catch(next);
+};
