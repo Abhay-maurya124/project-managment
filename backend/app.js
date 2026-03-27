@@ -17,5 +17,5 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(errorMiddleware);
-app.use("/user", router);
+app.use("/user",errorMiddleware, router);
 export default app;

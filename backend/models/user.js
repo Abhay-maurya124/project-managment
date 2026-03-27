@@ -1,4 +1,6 @@
-import mongoose, { Mongoose, Schema } from "mongoose";
+import mongoose from "mongoose";
+import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
 
 export const UserSchema = new mongoose.Schema(
   {
@@ -18,6 +20,7 @@ export const UserSchema = new mongoose.Schema(
     password: {
       type: String,
       required: [true, "Password is requires"],
+      select:false,
       minLength: [8, "Password must be atleast of 8 charectors"],
     },
     role: {
@@ -64,4 +67,24 @@ export const UserSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-export const User = mongoose.model("user", UserSchema);
+UserSchema.pre("save",async function(){
+  if(!this.isModified("password")){
+    return 
+  }
+  this.password = await bcrypt.hash(this.password,10)
+ 
+})
+
+UserSchema.methods.generatetoken = function() {
+  return jwt.sign(
+    { id: this._id }, 
+    process.env.JWT_SECRET_KEY,
+    { expiresIn: process.env.JWT_EXPIRES || "7d" }
+  );
+};
+
+UserSchema.methods.comparepassword= async function(enteredpassword){
+return await bcrypt.compare(enteredpassword, this.password)
+}
+
+export const User = mongoose.model("User", UserSchema);
