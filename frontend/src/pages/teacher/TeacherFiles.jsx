@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { ArrowDownToLine } from "lucide-react";
 
-const SupervisorPage = () => {
+const TeacherFiles = () => {
   return <></>;
 };
 
-export default SupervisorPage;
+export default TeacherFiles;

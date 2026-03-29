@@ -1,8 +1,8 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-const StudentDashboard = () => {
+const NotificationsPage = () => {
   return <></>;
 };
 
-export default StudentDashboard;
+export default NotificationsPage;

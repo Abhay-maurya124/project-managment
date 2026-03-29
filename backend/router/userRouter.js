@@ -15,7 +15,7 @@ export const router = express.Router();
 router.post("/register", registerUser);
 router.post("/deleteallUser", deleteallUser);
 router.get("/allUser", allUser);
-router.get("/loginUser", loginUser);
+router.post("/loginUser", loginUser);
 router.get("/singleuser", authHandler, singleuser);
 router.get("/logout", authHandler, logout);
 router.post("/resetpassword",authHandler, resetpassword);

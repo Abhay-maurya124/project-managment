@@ -1,9 +1,8 @@
-import React from 'react'
+import { useState } from "react";
+import { useDispatch } from "react-redux";
 
 const SubmitProposal = () => {
-  return (
-    <div>SubmitProposal</div>
-  )
-}
+  return <></>;
+};
 
-export default SubmitProposal
+export default SubmitProposal;

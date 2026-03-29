@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import AddStudent from "../../components/modal/AddStudent";
 
-const SupervisorPage = () => {
+const ManageStudents = () => {
   return <></>;
 };
 
-export default SupervisorPage;
+export default ManageStudents;

@@ -9,13 +9,13 @@ const app = express();
 app.use(
   cors({
     origin: [process.env.FRONT_URL],
-    method: ["GET", "PUT", "DELET", "POST"],
-    Credentials: true,
+    methods: ["GET", "PUT", "DELET", "POST"],
+    credentials: true,
   }),
 );
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use("/user", router);
 app.use(errorMiddleware);
-app.use("/user",errorMiddleware, router);
 export default app;

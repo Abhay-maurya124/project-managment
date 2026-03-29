@@ -1,9 +1,9 @@
-import React from 'react'
+import { useEffect, useRef, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { toast } from "react-toastify";
 
 const UploadFiles = () => {
-  return (
-    <div>UploadFiles</div>
-  )
-}
+  return <></>;
+};
 
-export default UploadFiles
+export default UploadFiles;
