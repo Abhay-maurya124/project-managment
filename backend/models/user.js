@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+import crypto from "crypto";
 
 export const UserSchema = new mongoose.Schema(
   {
@@ -20,7 +21,7 @@ export const UserSchema = new mongoose.Schema(
     password: {
       type: String,
       required: [true, "Password is requires"],
-      select:false,
+      select: false,
       minLength: [8, "Password must be atleast of 8 charectors"],
     },
     role: {
@@ -67,24 +68,30 @@ export const UserSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-UserSchema.pre("save",async function(){
-  if(!this.isModified("password")){
-    return 
+UserSchema.pre("save", async function () {
+  if (!this.isModified("password")) {
+    return;
   }
-  this.password = await bcrypt.hash(this.password,10)
- 
-})
+  this.password = await bcrypt.hash(this.password, 10);
+});
 
-UserSchema.methods.generatetoken = function() {
-  return jwt.sign(
-    { id: this._id }, 
-    process.env.JWT_SECRET_KEY,
-    { expiresIn: process.env.JWT_EXPIRES || "7d" }
-  );
+UserSchema.methods.generatetoken = function () {
+  return jwt.sign({ id: this._id }, process.env.JWT_SECRET_KEY, {
+    expiresIn: process.env.JWT_EXPIRES || "7d",
+  });
 };
 
-UserSchema.methods.comparepassword= async function(enteredpassword){
-return await bcrypt.compare(enteredpassword, this.password)
-}
+UserSchema.methods.comparepassword = async function (enteredpassword) {
+  return await bcrypt.compare(enteredpassword, this.password);
+};
 
+UserSchema.methods.getresetpasswordToken = async function () {
+  const resetToken = crypto.randomBytes(20).toString("hex");
+  this.resetpasswordToken = crypto
+    .createHash("sha256")
+    .update(resetToken)
+    .digest("hex");
+  this.resetPasswordExpires = Date.now() + 15 * 60 * 1000;
+  return resetToken;
+};
 export const User = mongoose.model("User", UserSchema);

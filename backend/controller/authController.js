@@ -1,6 +1,9 @@
 import { asynchandler } from "../middleware/asyncHandler.js";
 import { User } from "../models/user.js";
+import { sendemail } from "../serrvices/emailservice.js";
+import { GenerateForgetPasswordEmailTemplate } from "../utiles/generateForgetPasswordEmailTemplate.js";
 import { generateToken } from "../utiles/genratetoken.js";
+import crypto from "crypto"
 export const registerUser = asynchandler(async (req, res) => {
   const { name, password, email, role } = req.body;
   if (!name) {
@@ -108,7 +111,18 @@ export const loginUser = asynchandler(async (req, res) => {
   });
 });
 export const singleuser = asynchandler(async (req, res) => {
-  const userId = req.userid;
+  const user = req.user;
+  if (!user) {
+    return res.status(404).json({
+      success: false,
+      message: "User not found",
+    });
+  }
+  return res.status(200).json({
+    success: true,
+    message: "User fetch successfully",
+    user,
+  });
 });
 export const logout = asynchandler(async (req, res) => {
   res
@@ -121,4 +135,71 @@ export const logout = asynchandler(async (req, res) => {
       status: true,
       message: "logout successfull",
     });
+});
+export const resetpassword = asynchandler(async (req, res) => {
+  const user = req.user;
+  const {email}=req.body 
+  const finduser = User.findOne({ email});
+  if (!finduser) {
+    return res.status(404).json({
+      success: false,
+      message: "User not found",
+    });
+  }
+  const resetToken = await user.getresetpasswordToken();
+  await user.save({ validateBeforeSave: false });
+  const resetPasswordurl = `${process.env.FRONT_URL}/reset-password?token=${resetToken}`;
+  const message = GenerateForgetPasswordEmailTemplate(resetPasswordurl , user.name);
+
+  try {
+    await sendemail({
+      to: user.email,
+      subject: "Password Reset Request",
+      message,
+    });
+    res.status(200).json({
+      success: true,
+      message: `Email sent to${user.email} successfully`,
+    });
+  } catch (error) {
+    user.resetpasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+    await user.save({ validateBeforeSave: false });
+    console.log(error.message,"this the error");
+  }
+});
+export const forgetpassword = asynchandler(async (req, res) => {
+  const { token } = req.params;
+  const resetpasswordToken = crypto
+    .createHash("sha256")
+    .update(token)
+    .digest("hex");
+
+  const user = await User.findOne({
+    resetpasswordToken,
+    resetPasswordExpires: { $gt: Date.now() },
+  });
+  if (!user) {
+    return res.status(404).json({
+      success: false,
+      message: "User not found",
+    });
+  }
+  if (!req.body.password || !req.body.confirmPassword) {
+    return res.status(400).json({
+      success: false,
+      message: "All fields are required",
+    });
+  }
+  if (req.body.password !== req.body.confirmPassword) {
+    return res.status(400).json({
+      success: false,
+      message: "password and confimePassword not match",
+    });
+  }
+  user.password = req.body.password;
+  user.resetpasswordToken = undefined;
+  user.resetPasswordExpires = undefined;
+  await user.save();
+  generateToken(user, 200, "password reset succesfully", res);
 });
