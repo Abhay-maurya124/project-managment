@@ -25,11 +25,11 @@ export const errorMiddleware = (err, req, res, next) => {
         .map((value) => value.message)
         .join(", ")
     : err.message;
-
-    return res.status(err.statusCode).json({
-        success:false,
-        message:errorMessage
-    })
+  err.statusCode = err.statusCode || 500;
+  return res.status(err.statusCode).json({
+    success: false,
+    message: errorMessage,
+  });
 };
 
-export default ErrorHandler
+export default ErrorHandler;

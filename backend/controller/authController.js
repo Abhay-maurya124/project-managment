@@ -107,6 +107,7 @@ export const loginUser = asynchandler(async (req, res) => {
       name: finduser.name,
       email: finduser.email,
       password: correctpassword,
+      role: finduser.role,
     },
   });
 });
@@ -137,19 +138,18 @@ export const logout = asynchandler(async (req, res) => {
     });
 });
 export const resetpassword = asynchandler(async (req, res) => {
-  const user = req.user;
-  const {email}=req.body 
-  const finduser = User.findOne({ email});
-  if (!finduser) {
-    return res.status(404).json({
-      success: false,
-      message: "User not found",
-    });
+  const { email } = req.body; 
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    return res.status(404).json({ success: false, message: "User not found" });
   }
+
   const resetToken = await user.getresetpasswordToken();
   await user.save({ validateBeforeSave: false });
-  const resetPasswordurl = `${process.env.FRONT_URL}/reset-password?token=${resetToken}`;
-  const message = GenerateForgetPasswordEmailTemplate(resetPasswordurl , user.name);
+
+  const resetPasswordurl = `${process.env.FRONT_URL}/resetpassword/${resetToken}`;
+  const message = GenerateForgetPasswordEmailTemplate(resetPasswordurl, user.name);
 
   try {
     await sendemail({
@@ -157,15 +157,12 @@ export const resetpassword = asynchandler(async (req, res) => {
       subject: "Password Reset Request",
       message,
     });
-    res.status(200).json({
-      success: true,
-      message: `Email sent to${user.email} successfully`,
-    });
+    res.status(200).json({ success: true, message: `Email sent to ${user.email}` });
   } catch (error) {
     user.resetpasswordToken = undefined;
     user.resetPasswordExpires = undefined;
     await user.save({ validateBeforeSave: false });
-    console.log(error.message,"this the error");
+    return res.status(500).json({ success: false, message: "Email could not be sent" });
   }
 });
 export const forgetpassword = asynchandler(async (req, res) => {

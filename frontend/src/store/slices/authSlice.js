@@ -17,8 +17,46 @@ export const login = createAsyncThunk("auth/login", async (data, thunkAPI) => {
     return thunkAPI.rejectWithValue(message);
   }
 });
-
-
+export const resetpassword = createAsyncThunk(
+  "auth/resetpassword",
+  async (email, thunkAPI) => {
+    try {
+      const res = await axiosInstance.post("/user/resetpassword", {email}, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      toast.success(res.data.message);
+      return res.data.user;
+    } catch (error) {
+      const message = error.response?.data?.message || error.message;
+      toast.error(message);
+      return thunkAPI.rejectWithValue(message);
+    }
+  },
+);
+export const forgetpassword = createAsyncThunk(
+  "auth/forgetpassword",
+  async ({token,data}, thunkAPI) => {
+    try {
+      const res = await axiosInstance.put(
+        `/user/forgetpassword/${token}`,
+        data,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        },
+      );
+      toast.success(res.data.message);
+      return res.data.user;
+    } catch (error) {
+      const message = error.response?.data?.message || error.message;
+      toast.error(message);
+      return thunkAPI.rejectWithValue(message);
+    }
+  },
+);
 
 const authSlice = createSlice({
   name: "auth",
@@ -33,6 +71,7 @@ const authSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+    
       .addCase(login.pending, (state) => {
         state.isLoggingIn = true;
       })
@@ -43,6 +82,28 @@ const authSlice = createSlice({
       .addCase(login.rejected, (state) => {
         state.isLoggingIn = false;
         state.authUser = null;
+      })
+
+
+      .addCase(forgetpassword.pending, (state) => {
+        state.isUpdatingPassword = true;
+      })
+      .addCase(forgetpassword.fulfilled, (state) => {
+        state.isUpdatingPassword = false;
+      })
+      .addCase(forgetpassword.rejected, (state) => {
+        state.isUpdatingPassword = false;
+      })
+
+
+      .addCase(resetpassword.pending, (state) => {
+        state.isRequestingForToken = true;
+      })
+      .addCase(resetpassword.fulfilled, (state) => {
+        state.isRequestingForToken = false;
+      })
+      .addCase(resetpassword.rejected, (state) => {
+        state.isRequestingForToken = false;
       });
   },
 });

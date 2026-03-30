@@ -5,7 +5,7 @@ import { LogIn, Mail, Lock, UserCircle, Loader2 } from "lucide-react";
 import { toast } from "react-toastify";
 import { login } from "../../store/slices/authSlice";
 
-const LoginPage = () => {
+const LoginPage = () => { 
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { authUser, isLoggingIn } = useSelector((state) => state.auth);
@@ -20,8 +20,8 @@ const LoginPage = () => {
 
   useEffect(() => {
     if (authUser) {
-      if (authUser.role === "Admin") navigate("/admin-dashboard");
-      else if (authUser.role === "Teacher") navigate("/teacherdashboard");
+      if (authUser.role === "Admin") navigate("/AdminDashboard");
+      else if (authUser.role === "Teacher") navigate("/TeacherDashboard");
       else navigate("/StudentDashboard");
     }
   }, [authUser, navigate]);
@@ -122,7 +122,7 @@ const LoginPage = () => {
           </div>
 
           <div className="flex justify-end">
-            <Link to="/forget-password" state={{ role: formData.role }} className="text-sm text-blue-600 hover:underline">
+            <Link to="/resetpassword" state={{ role: formData.role }} className="text-sm text-blue-600 hover:underline">
               Forgot Password?
             </Link>
           </div>

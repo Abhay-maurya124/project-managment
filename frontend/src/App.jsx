@@ -41,8 +41,12 @@ const App = () => {
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/forgetpassword" element={<ForgotPasswordPage />} />
-          <Route path="/resetpassoword" element={<ResetPasswordPage />} />
+          <Route path="/resetpassword/:token" element={<ForgotPasswordPage />} />
+          <Route path="/resetpassword" element={<ResetPasswordPage />} />
+          <Route path="/StudentDashboard" element={<StudentDashboard />} />
+          <Route path="/TeacherDashboard" element={<TeacherDashboard />} />
+          <Route path="/AdminDashboard" element={<AdminDashboard />} />
+
         </Routes>
       </BrowserRouter>
       <ToastContainer
