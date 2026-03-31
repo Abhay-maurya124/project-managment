@@ -27,7 +27,7 @@ export const UserSchema = new mongoose.Schema(
     role: {
       type: String,
       default: "student",
-      enum: ["student", "Teacher", "Admin"],
+      enum: ["Student", "Teacher", "Admin"],
     },
     resetpasswordToken: String,
     resetPasswordExpires: Date,

@@ -23,12 +23,28 @@ export const authHandler = asynchandler(async (req, res, next) => {
         message: "User not found with this token",
       });
     }
-    req.user = user; 
+    req.user = user;
     next();
   } catch (error) {
     return res.status(401).json({
       success: false,
-      message: error.name === "TokenExpiredError" ? "Session Expired" : "Invalid Token",
+      message:
+        error.name === "TokenExpiredError"
+          ? "Session Expired"
+          : "Invalid Token",
     });
   }
 });
+
+export const isAuthorised = (...roles) => {
+  return (req, res, next) => {
+    if (!roles.includes(req.user.role)) {
+      return next(
+        new Error(
+          `Role:${req.user.role} is not allowed to access this resource`,
+        ),
+      );
+    }
+    next()
+  };
+};

@@ -3,7 +3,7 @@ import { User } from "../models/user.js";
 import { sendemail } from "../serrvices/emailservice.js";
 import { GenerateForgetPasswordEmailTemplate } from "../utiles/generateForgetPasswordEmailTemplate.js";
 import { generateToken } from "../utiles/genratetoken.js";
-import crypto from "crypto"
+import crypto from "crypto";
 export const registerUser = asynchandler(async (req, res) => {
   const { name, password, email, role } = req.body;
   if (!name) {
@@ -57,7 +57,10 @@ export const deleteallUser = asynchandler(async (req, res) => {
   });
 });
 export const allUser = asynchandler(async (req, res) => {
-  const FindAll = await User.find({});
+  const query = { role: { $ne: "Admin" } };
+  const FindAll = await User.find(query)
+    .select("-password -resetpasswordToken -resetPasswordExpires")
+    .sort({ createdAt: -1 });
   return res.status(200).json({
     success: true,
     message: "User Fetch successfull",
@@ -138,7 +141,7 @@ export const logout = asynchandler(async (req, res) => {
     });
 });
 export const resetpassword = asynchandler(async (req, res) => {
-  const { email } = req.body; 
+  const { email } = req.body;
   const user = await User.findOne({ email });
 
   if (!user) {
@@ -149,7 +152,10 @@ export const resetpassword = asynchandler(async (req, res) => {
   await user.save({ validateBeforeSave: false });
 
   const resetPasswordurl = `${process.env.FRONT_URL}/resetpassword/${resetToken}`;
-  const message = GenerateForgetPasswordEmailTemplate(resetPasswordurl, user.name);
+  const message = GenerateForgetPasswordEmailTemplate(
+    resetPasswordurl,
+    user.name,
+  );
 
   try {
     await sendemail({
@@ -157,12 +163,16 @@ export const resetpassword = asynchandler(async (req, res) => {
       subject: "Password Reset Request",
       message,
     });
-    res.status(200).json({ success: true, message: `Email sent to ${user.email}` });
+    res
+      .status(200)
+      .json({ success: true, message: `Email sent to ${user.email}` });
   } catch (error) {
     user.resetpasswordToken = undefined;
     user.resetPasswordExpires = undefined;
     await user.save({ validateBeforeSave: false });
-    return res.status(500).json({ success: false, message: "Email could not be sent" });
+    return res
+      .status(500)
+      .json({ success: false, message: "Email could not be sent" });
   }
 });
 export const forgetpassword = asynchandler(async (req, res) => {
