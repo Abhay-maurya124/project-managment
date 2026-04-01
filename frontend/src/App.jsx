@@ -33,9 +33,19 @@ import ProjectsPage from "./pages/admin/ProjectsPage";
 import { useDispatch, useSelector } from "react-redux";
 import { ToastContainer } from "react-toastify";
 import { Loader } from "lucide-react";
-
+import { authUser } from "../src/store/slices/authSlice.js"
 const App = () => {
+  const protectedRoutes = ({ children, allowedRoles }) => {
+    if (!authUser) {
+      return <Navigate to={"/login"} replace />
+    }
+    if (allowedRoles?.length && authUser?.role && !allowedRoles.includes(authUser.role)) {
+      const redirectpath = authUser.role === "Admin" ? "/admin" : authUser.role === "Teacher" ? "/Teacher" : "/Student"
+      return <Navigate to={redirectpath} />
+    }
 
+    return children
+  }
   return (
     <>
       <BrowserRouter>
@@ -43,24 +53,28 @@ const App = () => {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/resetpassword/:token" element={<ForgotPasswordPage />} />
           <Route path="/resetpassword" element={<ResetPasswordPage />} />
-          <Route path="/StudentDashboard" element={<StudentDashboard />} />
+          {/* <Route path="/StudentDashboard" element={<StudentDashboard />} />
           <Route path="/TeacherDashboard" element={<TeacherDashboard />} />
-          <Route path="/AdminDashboard" element={<AdminDashboard />} />
+          <Route path="/AdminDashboard" element={<AdminDashboard />} /> */}
 
+          <Route path="/admin" element={<protectedRoutes allowedRoles={"Admin"}>
+            <DashboardLayout />
+          </protectedRoutes>} />
         </Routes>
+        <ToastContainer
+          position="top-right"
+          autoClose={3000}
+          theme="dark"
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+        />
       </BrowserRouter>
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        theme="dark"
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-      />
+
     </>
   );
 };

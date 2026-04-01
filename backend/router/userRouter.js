@@ -1,6 +1,5 @@
 import express from "express";
 import {
-  allUser,
   deleteallUser,
   forgetpassword,
   loginUser,
@@ -14,7 +13,6 @@ export const router = express.Router();
 
 router.post("/register", registerUser);
 router.post("/deleteallUser", deleteallUser);
-router.get("/allUser", allUser);
 router.post("/loginUser", loginUser);
 router.get("/singleuser", authHandler, singleuser);
 router.post("/logout", authHandler, logout);

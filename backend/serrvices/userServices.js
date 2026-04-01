@@ -18,7 +18,16 @@ export const updateStudentData = async (id, updateData) => {
     throw new Error(`Error creating user :${error.message}`);
   }
 };
-
+export const updateTeacherData = async (id, updateData) => {
+  try {
+    return await User.findByIdAndUpdate(id, updateData, {
+      new: true,
+      runValidators: true,
+    }).select("-password");
+  } catch (error) {
+    throw new Error(`Error creating user :${error.message}`);
+  }
+};
 export const getUserById = async (id) => {
   try {
     return await User.findById(id).select(
@@ -28,7 +37,6 @@ export const getUserById = async (id) => {
     throw new Error(`Error creating user :${error.message}`);
   }
 };
-
 export const deleteUser = async (id) => {
   const user = await User.findById(id);
   if (!user) {

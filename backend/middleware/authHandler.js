@@ -35,7 +35,6 @@ export const authHandler = asynchandler(async (req, res, next) => {
     });
   }
 });
-
 export const isAuthorised = (...roles) => {
   return (req, res, next) => {
     if (!roles.includes(req.user.role)) {

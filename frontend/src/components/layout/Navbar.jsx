@@ -1,12 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-
+import { logout } from "../../store/slices/authSlice.js"
 const Navbar = ({ sidebarOpen, setSidebarOpen }) => {
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const { authUser } = useSelector((state) => state.auth);
-
   const getInitials = (name) => {
     return (
       name
@@ -16,7 +15,12 @@ const Navbar = ({ sidebarOpen, setSidebarOpen }) => {
         .toUpperCase() || "U"
     );
   };
-
+  const navigate = useNavigate()
+  const handlelogout = () => {
+    dispatch(logout()).then(() => {
+      navigate("/login")
+    })
+  }
   return (
     <nav className="bg-white shadow-sm border-b border-slate-200 fixed w-full top-0 z-30">
       <div className="px-4 sm:px-6 lg:px-8">
@@ -131,7 +135,10 @@ const Navbar = ({ sidebarOpen, setSidebarOpen }) => {
                       </p>
                     </div>
                     <button
-                      className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md mt-2"
+                      onClick={handlelogout}
+                      className="w-full text-left 
+                      
+                      px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md mt-2"
                     >
                       Sign out
                     </button>

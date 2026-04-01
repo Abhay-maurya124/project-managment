@@ -56,17 +56,7 @@ export const deleteallUser = asynchandler(async (req, res) => {
     deleteuer,
   });
 });
-export const allUser = asynchandler(async (req, res) => {
-  const query = { role: { $ne: "Admin" } };
-  const FindAll = await User.find(query)
-    .select("-password -resetpasswordToken -resetPasswordExpires")
-    .sort({ createdAt: -1 });
-  return res.status(200).json({
-    success: true,
-    message: "User Fetch successfull",
-    FindAll,
-  });
-});
+
 export const loginUser = asynchandler(async (req, res) => {
   const { email, password, role } = req.body;
   if (!password) {

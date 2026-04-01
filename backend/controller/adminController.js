@@ -1,4 +1,5 @@
 import { asynchandler } from "../middleware/asyncHandler.js";
+import { User } from "../models/user.js";
 import * as userServices from "../serrvices/userServices.js";
 export const createStudent = asynchandler(async (req, res) => {
   const { name, password, email, department } = req.body;
@@ -22,7 +23,6 @@ export const createStudent = asynchandler(async (req, res) => {
     data: { user },
   });
 });
-
 export const updateStudent = asynchandler(async (req, res) => {
   const { id } = req.params;
   const updateData = { ...req.body };
@@ -41,7 +41,6 @@ export const updateStudent = asynchandler(async (req, res) => {
     data: { user },
   });
 });
-
 export const deleteStudent = asynchandler(async (req, res) => {
   const { id } = req.params;
   const user = await userServices.getUserById(id);
@@ -136,5 +135,16 @@ export const deleteTeacher = asynchandler(async (req, res) => {
   res.status(200).json({
     success: false,
     message: "Teacher delete Succesfully",
+  });
+});
+export const allUser = asynchandler(async (req, res) => {
+  const query = { role: { $ne: "Admin" } };
+  const Alluser = await User.find(query)
+    .select("-password -resetpasswordToken -resetPasswordExpires")
+    .sort({ createdAt: -1 });
+  return res.status(200).json({
+    success: true,
+    message: "User Fetch successfull",
+    Alluser,
   });
 });
