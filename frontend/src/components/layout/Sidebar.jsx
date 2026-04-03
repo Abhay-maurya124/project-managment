@@ -46,11 +46,7 @@ const Sidebar = ({ open, setOpen, userRole }) => {
         return [
           { name: "Home", path: "/admin", icon: "home" },
           { name: "Manage Students", path: "/admin/students", icon: "users" },
-          {
-            name: "Manage Teachers",
-            path: "/admin/teachers",
-            icon: "academic",
-          },
+          { name: "Manage Teachers",path: "/admin/teachers",icon: "academic",},
           {
             name: "Assign Supervisor",
             path: "/admin/assign-supervisor",

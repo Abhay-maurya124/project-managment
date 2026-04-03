@@ -6,6 +6,7 @@ const Navbar = ({ sidebarOpen, setSidebarOpen }) => {
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const { authUser } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
   const getInitials = (name) => {
     return (
       name

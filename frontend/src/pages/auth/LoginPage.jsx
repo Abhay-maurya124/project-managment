@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { LogIn, Mail, Lock, UserCircle, Loader2 } from "lucide-react";
-import { toast } from "react-toastify";
 import { login } from "../../store/slices/authSlice";
 
 const LoginPage = () => { 
@@ -13,16 +12,18 @@ const LoginPage = () => {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-    role: "student",
+    role: "Student", // Match the case of your dropdown values
   });
-  console.log(formData)
+
   const [errors, setErrors] = useState({});
 
+  // FIXED: Standardized to lowercase paths to match App.jsx routes
   useEffect(() => {
     if (authUser) {
-      if (authUser.role === "Admin") navigate("/AdminDashboard");
-      else if (authUser.role === "Teacher") navigate("/TeacherDashboard");
-      else navigate("/StudentDashboard");
+      const role = authUser.role;
+      if (role === "Admin") navigate("/admin");
+      else if (role === "Teacher") navigate("/teacher");
+      else navigate("/student");
     }
   }, [authUser, navigate]);
 
@@ -57,7 +58,6 @@ const LoginPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
-
     dispatch(login(formData));
   };
 
@@ -122,7 +122,7 @@ const LoginPage = () => {
           </div>
 
           <div className="flex justify-end">
-            <Link to="/resetpassword" state={{ role: formData.role }} className="text-sm text-blue-600 hover:underline">
+            <Link to="/forgot-password" state={{ role: formData.role }} className="text-sm text-blue-600 hover:underline">
               Forgot Password?
             </Link>
           </div>
@@ -142,13 +142,6 @@ const LoginPage = () => {
             )}
           </button>
         </form>
-
-        <p className="text-center mt-6 text-gray-600">
-          New here?{" "}
-          <Link to="/register" className="text-blue-600 hover:underline font-medium">
-            Create Account
-          </Link>
-        </p>
       </div>
     </div>
   );

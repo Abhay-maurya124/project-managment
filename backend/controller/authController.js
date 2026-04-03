@@ -92,6 +92,7 @@ export const loginUser = asynchandler(async (req, res) => {
       message: "incorrect password",
     });
   }
+  return generateToken(finduser, 200, "Login Successful", res);
   return res.status(200).json({
     success: true,
     message: "login Successful",

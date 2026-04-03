@@ -17,17 +17,30 @@ export const login = createAsyncThunk("auth/login", async (data, thunkAPI) => {
     return thunkAPI.rejectWithValue(message);
   }
 });
+
+export const logout = createAsyncThunk("auth/logout", async (_, thunkAPI) => {
+  try {
+    const res = await axiosInstance.post("/user/logout");
+    toast.success(res.data.message);
+    return res.data;
+  } catch (error) {
+    const message = error.response?.data?.message || error.message;
+    toast.error(message);
+    return thunkAPI.rejectWithValue(message);
+  }
+});
+
 export const resetpassword = createAsyncThunk(
   "auth/resetpassword",
   async (email, thunkAPI) => {
     try {
-      const res = await axiosInstance.post("/user/resetpassword", {email}, {
+      const res = await axiosInstance.post("/user/resetpassword", { email }, {
         headers: {
           "Content-Type": "application/json",
         },
       });
       toast.success(res.data.message);
-      return res.data.user;
+      return res.data;
     } catch (error) {
       const message = error.response?.data?.message || error.message;
       toast.error(message);
@@ -35,9 +48,10 @@ export const resetpassword = createAsyncThunk(
     }
   },
 );
+
 export const forgetpassword = createAsyncThunk(
   "auth/forgetpassword",
-  async ({token,data}, thunkAPI) => {
+  async ({ token, data }, thunkAPI) => {
     try {
       const res = await axiosInstance.put(
         `/user/forgetpassword/${token}`,
@@ -49,7 +63,7 @@ export const forgetpassword = createAsyncThunk(
         },
       );
       toast.success(res.data.message);
-      return res.data.user;
+      return res.data;
     } catch (error) {
       const message = error.response?.data?.message || error.message;
       toast.error(message);
@@ -57,7 +71,6 @@ export const forgetpassword = createAsyncThunk(
     }
   },
 );
-
 
 const authSlice = createSlice({
   name: "auth",
@@ -70,9 +83,14 @@ const authSlice = createSlice({
     isRequestingForToken: false,
     isCheckingAuth: true,
   },
+  reducers: {
+    setAuthUser: (state, action) => {
+      state.authUser = action.payload;
+    },
+  },
   extraReducers: (builder) => {
     builder
-    
+      // Login cases
       .addCase(login.pending, (state) => {
         state.isLoggingIn = true;
       })
@@ -85,7 +103,15 @@ const authSlice = createSlice({
         state.authUser = null;
       })
 
+      // Logout cases
+      .addCase(logout.fulfilled, (state) => {
+        state.authUser = null;
+      })
+      .addCase(logout.rejected, (state) => {
+        state.authUser = null;
+      })
 
+      // Forget Password cases
       .addCase(forgetpassword.pending, (state) => {
         state.isUpdatingPassword = true;
       })
@@ -96,7 +122,7 @@ const authSlice = createSlice({
         state.isUpdatingPassword = false;
       })
 
-
+      // Reset Password cases
       .addCase(resetpassword.pending, (state) => {
         state.isRequestingForToken = true;
       })
@@ -109,4 +135,5 @@ const authSlice = createSlice({
   },
 });
 
+export const { setAuthUser } = authSlice.actions;
 export default authSlice.reducer;
