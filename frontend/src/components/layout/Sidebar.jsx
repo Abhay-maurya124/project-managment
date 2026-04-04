@@ -330,7 +330,7 @@ const Sidebar = ({ open, setOpen, userRole }) => {
                     }
                   }}
                 >
-                  <div className="flex-shrink-0">
+                  <div className="shrink-0">
                     {getIcon(item.icon, isActive)}
                   </div>
                   <span
@@ -433,7 +433,7 @@ const Sidebar = ({ open, setOpen, userRole }) => {
             `}
                   onClick={() => setOpen(false)}
                 >
-                  <div className="flex-shrink-0">
+                  <div className="shrink-0">
                     {getIcon(item.icon, isActive)}
                   </div>
                   <span className="ml-3 font-medium">{item.name}</span>

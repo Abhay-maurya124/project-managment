@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -32,6 +32,8 @@ import ManageTeachers from "./pages/admin/ManageTeachers";
 import AssignSupervisor from "./pages/admin/AssignSupervisor";
 import DeadlinesPage from "./pages/admin/DeadlinesPage";
 import ProjectsPage from "./pages/admin/ProjectsPage";
+import { useEffect } from "react";
+import { checkAuth } from "./store/slices/authSlice";
 
 const ProtectedRoute = ({ allowedRoles }) => {
   const { authUser, isCheckingAuth } = useSelector((state) => state.auth);
@@ -42,24 +44,30 @@ const ProtectedRoute = ({ allowedRoles }) => {
     return <Navigate to="/login" replace />;
   }
 
-if (allowedRoles && !allowedRoles.includes(authUser.role)) {
-    const redirectPath = 
-      authUser.role === "Admin" ? "/admin" : 
-      authUser.role === "Teacher" ? "/teacher" : "/student";
+  if (allowedRoles && !allowedRoles.includes(authUser.role)) {
+    const redirectPath =
+      authUser.role === "Admin" ? "/admin" :
+        authUser.role === "Teacher" ? "/teacher" : "/student";
     return <Navigate to={redirectPath} replace />;
-}
+  }
   return <Outlet />;
 };
 
 const App = () => {
   const dispatch = useDispatch();
   const { isCheckingAuth } = useSelector((state) => state.auth);
+
   useEffect(() => {
     dispatch(checkAuth());
   }, [dispatch]);
 
-  if (isCheckingAuth) return null;
-  return (
+  if (isCheckingAuth) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  } return (
     <BrowserRouter>
       <Routes>
         {/* Public Routes */}
@@ -69,7 +77,7 @@ const App = () => {
 
         {/* Admin Protected Routes */}
         <Route element={<ProtectedRoute allowedRoles={["Admin"]} />}>
-          <Route path="/admin" element={<DashboardLayout />}>
+          <Route path="/admin" element={<DashboardLayout userRole={"Admin"} />}>
             <Route index element={<AdminDashboard />} />
             <Route path="students" element={<ManageStudents />} />
             <Route path="teachers" element={<ManageTeachers />} />
@@ -81,7 +89,7 @@ const App = () => {
 
         {/* Teacher Protected Routes */}
         <Route element={<ProtectedRoute allowedRoles={["Teacher"]} />}>
-          <Route path="/teacher" element={<DashboardLayout />}>
+          <Route path="/teacher" element={<DashboardLayout userRole={"Teacher"} />}>
             <Route index element={<TeacherDashboard />} />
             <Route path="pending-requests" element={<PendingRequests />} />
             <Route path="assigned-students" element={<AssignedStudents />} />
@@ -91,7 +99,7 @@ const App = () => {
 
         {/* Student Protected Routes */}
         <Route element={<ProtectedRoute allowedRoles={["Student"]} />}>
-          <Route path="/student" element={<DashboardLayout />}>
+          <Route path="/student" element={<DashboardLayout userRole={"Student"} />}>
             <Route index element={<StudentDashboard />} />
             <Route path="submit-proposal" element={<SubmitProposal />} />
             <Route path="upload-files" element={<UploadFiles />} />

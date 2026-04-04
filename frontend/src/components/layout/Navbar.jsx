@@ -59,7 +59,7 @@ const Navbar = ({ sidebarOpen, setSidebarOpen }) => {
 
             {/* Logo and title */}
             <div className="flex items-center ml-4">
-              <div className="flex-shrink-0 flex items-center">
+              <div className="shrink-0 flex items-center">
                 <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
                   <svg
                     className="w-5 h-5 text-white"

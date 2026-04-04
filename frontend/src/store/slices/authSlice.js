@@ -34,11 +34,15 @@ export const resetpassword = createAsyncThunk(
   "auth/resetpassword",
   async (email, thunkAPI) => {
     try {
-      const res = await axiosInstance.post("/user/resetpassword", { email }, {
-        headers: {
-          "Content-Type": "application/json",
+      const res = await axiosInstance.post(
+        "/user/resetpassword",
+        { email },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
         },
-      });
+      );
       toast.success(res.data.message);
       return res.data;
     } catch (error) {
@@ -71,6 +75,14 @@ export const forgetpassword = createAsyncThunk(
     }
   },
 );
+export const checkAuth = createAsyncThunk("auth/check", async (_, thunkAPI) => {
+  try {
+    const res = await axiosInstance.get("/user/checkAuth");
+    return res.data.user;
+  } catch (error) {
+    return thunkAPI.rejectWithValue(null);
+  }
+});
 
 const authSlice = createSlice({
   name: "auth",
@@ -102,7 +114,17 @@ const authSlice = createSlice({
         state.isLoggingIn = false;
         state.authUser = null;
       })
-
+      .addCase(checkAuth.pending, (state) => {
+        state.isCheckingAuth = true;
+      })
+      .addCase(checkAuth.fulfilled, (state, action) => {
+        state.authUser = action.payload;
+        state.isCheckingAuth = false;
+      })
+      .addCase(checkAuth.rejected, (state) => {
+        state.authUser = null;
+        state.isCheckingAuth = false;
+      })
       // Logout cases
       .addCase(logout.fulfilled, (state) => {
         state.authUser = null;

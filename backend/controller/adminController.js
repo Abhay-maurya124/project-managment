@@ -3,10 +3,28 @@ import { User } from "../models/user.js";
 import * as userServices from "../serrvices/userServices.js";
 export const createStudent = asynchandler(async (req, res) => {
   const { name, password, email, department } = req.body;
-  if (!name || !password || !email || !department) {
+  if (!name) {
     return res.status(400).json({
       status: false,
-      message: "Credientials not found name, password, email or department",
+      message: "Name is required",
+    });
+  }
+  if (!email) {
+    return res.status(400).json({
+      status: false,
+      message: "Email is required",
+    });
+  }
+  if ( !password ) {
+    return res.status(400).json({
+      status: false,
+      message: "password is required",
+    });
+  }
+  if ( !department) {
+    return res.status(400).json({
+      status: false,
+      message: "department is required",
     });
   }
   const studentdata = {
@@ -133,7 +151,7 @@ export const deleteTeacher = asynchandler(async (req, res) => {
   }
   await userServices.deleteUser(id);
   res.status(200).json({
-    success: false,
+    success: true,
     message: "Teacher delete Succesfully",
   });
 });
