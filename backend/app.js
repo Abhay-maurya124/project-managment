@@ -5,8 +5,16 @@ import cors from "cors";
 import { errorMiddleware } from "./middleware/error.js";
 import { router } from "./router/userRouter.js";
 import { adminrouter } from "./router/adminroutes.js";
+import { Studentrouter } from "./router/studentRoutes.js";
+import { fileURLToPath } from "url";
+import path from "path";
+import fs from "fs";
+
 config();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const app = express();
+
 app.use(
   cors({
     origin: [process.env.FRONT_URL],
@@ -14,10 +22,19 @@ app.use(
     credentials: true,
   }),
 );
+
+const uploadDir = path.join(__dirname, "uploads");
+const tempDir = path.join(__dirname, "temp");
+
+if (fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+
+if (fs.existsSync(tempDir)) fs.mkdirSync(tempDir, { recursive: true });
+
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/user", router);
 app.use("/admin", adminrouter);
+app.use("/student", Studentrouter);
 app.use(errorMiddleware);
 export default app;
