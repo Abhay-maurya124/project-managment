@@ -1,10 +1,12 @@
 import { asynchandler } from "../middleware/asyncHandler.js";
 import { User } from "../models/user.js";
 import * as projectServices from "../serrvices/projectServices.js";
+import * as notificationServices from "../serrvices/notificationService.js";
+import * as requestServices from "../serrvices/requestService.js";
 
 export const getStudentProject = asynchandler(async (req, res) => {
   const studentId = req.user._id;
-  const project  = await projectServices.getProjectByStudent(studentId);
+  const project = await projectServices.getProjectByStudent(studentId);
   if (!project) {
     return res.status(200).json({
       success: true,
@@ -12,7 +14,7 @@ export const getStudentProject = asynchandler(async (req, res) => {
       message: "No Project found for this student",
     });
   }
-  res.status(200).json({
+  return res.status(200).json({
     success: true,
     data: { project },
     message: "Project found for this student",
@@ -24,8 +26,8 @@ export const submitProposal = asynchandler(async (req, res) => {
   const studentId = req.user._id;
   const existingProject = await projectServices.getProjectByStudent(studentId);
   if (existingProject && existingProject.status !== "rejected") {
-    res.status(400).json({
-      success: true,
+    return res.status(400).json({
+      success: false,
       data: { project: null },
       message:
         "you already have existing projects.You can only Submit a new Proposal if the Previous one was Rejected",
@@ -38,7 +40,7 @@ export const submitProposal = asynchandler(async (req, res) => {
   };
   const Project = await projectServices.createProject(projectData);
   await User.findByIdAndUpdate(studentId, { project: Project._id });
-  res.status(201).json({
+  return res.status(201).json({
     success: true,
     data: { Project },
     message: "Project proposal submit successful",
@@ -49,7 +51,7 @@ export const uploadFiles = asynchandler(async (req, res) => {
   const { projectId } = req.params;
   const studentId = req.user._id;
   const project = await projectServices.getProjectById(projectId);
-  if (!project || project.student.toString() !== studentId.toString()) {
+  if (!project || project.student._id.toString() !== studentId.toString()) {
     return res.status(401).json({
       success: false,
       message: "Not authorized to upload files to this project",
@@ -73,15 +75,48 @@ export const uploadFiles = asynchandler(async (req, res) => {
     data: { project: updateProject },
   });
 });
-
-export const getAvailableSupervisor = asynchandler(async (req, res) => {
-  const supervisor = await User.find({ role: "Teacher" })
+export const getAvailablesupervisor = asynchandler(async (req, res) => {
+  const supervisors = await User.find({ role: "Teacher" })
     .select("name email department expertise")
-    .lean(); //use for read only in the database
+    .lean();
 
   return res.status(200).json({
     success: true,
-    message: "Available Supervisor",
-    data: { supervisor },
+    message: "Available supervisors fetched",
+    data: { supervisors }, 
   });
+});
+
+export const requestSupervisor = asynchandler(async (req, res) => {
+  const { teacherId, message } = req.body;
+  const studentId = req.user._id;
+
+  const student = await User.findById(studentId);
+  if (student.supervisor) {
+    return res
+      .status(400)
+      .json({ success: false, message: "You already have a supervisor" });
+  }
+
+  const supervisor = await User.findById(teacherId);
+  if (!supervisor || supervisor.role !== "Teacher") {
+    return res
+      .status(400)
+      .json({ success: false, message: "Invalid supervisor selected" });
+  }
+
+  const requestedData = { student: studentId, supervisor: teacherId, message };
+  await requestServices.createRequest(requestedData);
+
+  await notificationServices.notifyUser(
+    teacherId,
+    `${student.name} requested you to be their supervisor`,
+    "request",
+    "/teacher/requests",
+    "medium",
+  );
+
+  return res
+    .status(200)
+    .json({ success: true, message: "Request sent successfully" });
 });

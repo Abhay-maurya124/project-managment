@@ -1,7 +1,8 @@
 import express from "express";
 import {
-    getAvailableSupervisor,
+    getAvailablesupervisor,
   getStudentProject,
+  requestSupervisor,
   submitProposal,
   uploadFiles,
 } from "../controller/studentcontroller.js";
@@ -9,11 +10,17 @@ import { authHandler, isAuthorised } from "../middleware/authHandler.js";
 import { handleuploadError,upload} from "../middleware/upload.js";
 export const Studentrouter = express.Router();
 
-Studentrouter.post(
+Studentrouter.get(
   "/project",
   authHandler,
   isAuthorised("Student"),
   getStudentProject,
+);
+Studentrouter.get(
+  "/fetch-Supervisor", 
+  authHandler,
+  isAuthorised("Student"),
+  getAvailablesupervisor
 );
 Studentrouter.post(
   "/proposal",
@@ -29,9 +36,9 @@ Studentrouter.post(
   handleuploadError,
   uploadFiles,
 );
-Studentrouter.get(
-  "/fetch-Supervisor",
-  authHandler,
-  isAuthorised("Student"),
-  getAvailableSupervisor,
+Studentrouter.post(
+  "/request-supervisor", 
+  authHandler, 
+  isAuthorised("Student"), 
+  requestSupervisor
 );

@@ -8,31 +8,30 @@ const __dirname = path.dirname(__filename);
 
 const ensureDirExists = (dir) => {
   if (!fs.existsSync(dir)) {
-    fs.mkdir(dir, { recursive: true });
+    fs.mkdirSync(dir, { recursive: true });
   }
 };
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     let uploadPath;
-    if (req.route.path.includes("/upload/:projectId")) {
-      uploadPath = path.join(
-        __dirname,
-        "../uploads/projects",
-        req.params.projectId,
-      );
-    } else if (req.route.path.includes("/upload/:userId")) {
-      uploadPath = path.join(__dirname, "../uploads/users", req.params.userId);
+    const url = req.originalUrl; 
+
+    if (url.includes("/upload/project") || req.params.projectId) {
+      uploadPath = path.join(__dirname, "../uploads/projects", req.params.projectId || "unassigned");
+    } else if (url.includes("/upload/user") || req.params.userId) {
+      uploadPath = path.join(__dirname, "../uploads/users", req.params.userId || "unassigned");
     } else {
       uploadPath = path.join(__dirname, "../uploads/temp");
     }
+    
     ensureDirExists(uploadPath);
     cb(null, uploadPath);
   },
   filename: (req, file, cb) => {
-    const uniqueSuffix = `${Date.now()} - ${Math.round(Math, random() * 1e9)}`;
+    const uniqueSuffix = `${Date.now()} - ${Math.round(Math.random() * 1e9)}`;
     const ext = path.extname(file.originalname);
-    cb(null, `${file.filename} - ${uniqueSuffix}${ext}`);
+    cb(null, `${file.fieldname}-${uniqueSuffix}${ext}`);
   },
 });
 

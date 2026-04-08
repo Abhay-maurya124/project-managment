@@ -13,7 +13,7 @@ const supervisorSchema = new mongoose.Schema(
       required: [true, "superVisor is required"],
     },
     message: {
-      type: Date,
+      type: String,
       trim: true,
       required: [true, "Message is required"],
       maxlength: [250, "Message cannot exceed 250 charector"],
