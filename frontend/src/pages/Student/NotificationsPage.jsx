@@ -1,37 +1,15 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getStudentProject } from "../../store/slices/studentSlice";
-import { Bell, Info, CheckCircle, Calendar } from "lucide-react";
+import { getDashboardStats } from "../../store/slices/studentSlice";
+import { Bell, Info, Clock } from "lucide-react";
 
 const NotificationsPage = () => {
   const dispatch = useDispatch();
-  const { project, loading } = useSelector((state) => state.student);
+  const { stats, loading } = useSelector((state) => state.student);
 
   useEffect(() => {
-    dispatch(getStudentProject());
+    dispatch(getDashboardStats());
   }, [dispatch]);
-
-  const notifications = [];
-  if (project) {
-    if (project.status === "pending") {
-      notifications.push({
-        id: "status",
-        title: "Proposal Status",
-        message: "Your proposal is currently pending approval.",
-        type: "info",
-        icon: <Info size={20} />,
-      });
-    }
-    if (project.feedback?.length > 0) {
-      notifications.push({
-        id: "feedback",
-        title: "New Feedback",
-        message: `You have ${project.feedback.length} new comment(s) on your project.`,
-        type: "success",
-        icon: <CheckCircle size={20} />,
-      });
-    }
-  }
 
   return (
     <div className="p-6 md:p-10 bg-gray-50 min-h-screen">
@@ -42,15 +20,20 @@ const NotificationsPage = () => {
         </div>
 
         {loading ? (
-          <p className="text-center text-gray-500">Syncing...</p>
-        ) : notifications.length > 0 ? (
           <div className="space-y-4">
-            {notifications.map((note) => (
-              <div key={note.id} className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex gap-4">
-                <div className="p-3 bg-blue-50 text-blue-600 rounded-xl h-fit">{note.icon}</div>
-                <div>
-                  <h3 className="font-bold text-gray-800">{note.title}</h3>
-                  <p className="text-sm text-gray-600">{note.message}</p>
+            {[1, 2, 3].map((i) => <div key={i} className="h-20 bg-white animate-pulse rounded-2xl" />)}
+          </div>
+        ) : stats?.notifications?.length > 0 ? (
+          <div className="space-y-4">
+            {stats.notifications.map((note) => (
+              <div key={note._id} className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex gap-4 items-start">
+                <div className="p-3 bg-blue-50 text-blue-600 rounded-xl"><Info size={20} /></div>
+                <div className="flex-1">
+                  <h3 className="font-bold text-gray-800 text-sm">System Update</h3>
+                  <p className="text-sm text-gray-600 my-1">{note.message}</p>
+                  <div className="flex items-center gap-1 text-[10px] text-gray-400 font-bold uppercase">
+                    <Clock size={10} /> {new Date(note.createdAt).toLocaleDateString()}
+                  </div>
                 </div>
               </div>
             ))}

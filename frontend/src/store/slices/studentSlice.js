@@ -33,11 +33,8 @@ export const submitProposal = createAsyncThunk(
 // 3. Upload Project Files
 export const uploadProjectFiles = createAsyncThunk(
   "student/uploadFiles",
-  async ({ projectId, files }, { rejectWithValue }) => {
+  async ({ projectId, formData }, { rejectWithValue }) => {
     try {
-      const formData = new FormData();
-      files.forEach((file) => formData.append("files", file));
-
       const { data } = await axiosInstance.post(
         `/student/upload/${projectId}`,
         formData,
@@ -58,8 +55,7 @@ export const fetchSupervisors = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const { data } = await axiosInstance.get("/student/fetch-Supervisor");
-      // FIXED: Matches your JSON structure "data": { "supervisors": [...] }
-      return data.data.supervisors; 
+      return data.data.supervisors;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message);
     }
@@ -81,11 +77,101 @@ export const sendSupervisorRequest = createAsyncThunk(
   }
 );
 
+// 6. Get Feedback (Specific Project)
+export const getProjectFeedback = createAsyncThunk(
+  "student/getFeedback",
+  async (projectId, { rejectWithValue }) => {
+    try {
+      const { data } = await axiosInstance.get(`/student/feedback/${projectId}`);
+      return data.data.feedback;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message);
+    }
+  }
+);
+
+// 7. Get Dashboard Stats (Dynamic Data)
+export const getDashboardStats = createAsyncThunk(
+  "student/getDashboardStats",
+  async (_, { rejectWithValue }) => {
+    try {
+      const { data } = await axiosInstance.get("/student/getDashboardStats");
+      return data.data; // Contains project, deadlines, notifications, etc.
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message);
+    }
+  }
+);
+
+// const studentSlice = createSlice({
+//   name: "student",
+//   initialState: {
+//     project: null,
+//     supervisors: [],
+//     stats: {
+//       upcomingDeadlines: [],
+//       notifications: [],
+//     },
+//     loading: false,
+//     error: null,
+//   },
+//   reducers: {
+//     clearStudentErrors: (state) => {
+//       state.error = null;
+//     },
+//   },
+//   extraReducers: (builder) => {
+//     builder
+//       // 1. Specific Cases (MUST COME FIRST)
+//       .addCase(getStudentProject.fulfilled, (state, action) => {
+//         state.loading = false;
+//         state.project = action.payload;
+//       })
+//       .addCase(submitProposal.fulfilled, (state, action) => {
+//         state.loading = false;
+//         state.project = action.payload;
+//       })
+//       .addCase(uploadProjectFiles.fulfilled, (state, action) => {
+//         state.loading = false;
+//         state.project = action.payload;
+//       })
+//       .addCase(fetchSupervisors.fulfilled, (state, action) => {
+//         state.loading = false;
+//         state.supervisors = action.payload;
+//       })
+//       .addCase(getDashboardStats.fulfilled, (state, action) => {
+//         state.loading = false;
+//         state.project = action.payload.project;
+//         state.stats.upcomingDeadlines = action.payload.upcomingDeadline;
+//         state.stats.notifications = action.payload.topNotification;
+//       })
+
+//       // 2. General Matchers (MUST COME AFTER CASES)
+//       .addMatcher(
+//         (action) => action.type.endsWith("/pending"),
+//         (state) => {
+//           state.loading = true;
+//           state.error = null;
+//         }
+//       )
+//       .addMatcher(
+//         (action) => action.type.endsWith("/rejected"),
+//         (state, action) => {
+//           state.loading = false;
+//           state.error = action.payload;
+//         }
+//       );
+//   },
+// });
 const studentSlice = createSlice({
   name: "student",
   initialState: {
     project: null,
     supervisors: [],
+    stats: {
+      upcomingDeadlines: [],
+      notifications: [],
+    },
     loading: false,
     error: null,
   },
@@ -96,36 +182,46 @@ const studentSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(getStudentProject.pending, (state) => {
-        state.loading = true;
-      })
+      // 1. Specific Cases (MUST COME FIRST)
       .addCase(getStudentProject.fulfilled, (state, action) => {
         state.loading = false;
         state.project = action.payload;
       })
-      .addCase(getStudentProject.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      })
       .addCase(submitProposal.fulfilled, (state, action) => {
+        state.loading = false;
         state.project = action.payload;
       })
       .addCase(uploadProjectFiles.fulfilled, (state, action) => {
+        state.loading = false;
         state.project = action.payload;
-      })
-      .addCase(fetchSupervisors.pending, (state) => {
-        state.loading = true;
       })
       .addCase(fetchSupervisors.fulfilled, (state, action) => {
         state.loading = false;
         state.supervisors = action.payload;
       })
-      .addCase(fetchSupervisors.rejected, (state, action) => {
+      .addCase(getDashboardStats.fulfilled, (state, action) => {
         state.loading = false;
-        state.error = action.payload;
-      });
+        state.project = action.payload.project;
+        state.stats.upcomingDeadlines = action.payload.upcomingDeadline;
+        state.stats.notifications = action.payload.topNotification;
+      })
+
+      // 2. General Matchers (MUST COME AFTER CASES)
+      .addMatcher(
+        (action) => action.type.endsWith("/pending"),
+        (state) => {
+          state.loading = true;
+          state.error = null;
+        }
+      )
+      .addMatcher(
+        (action) => action.type.endsWith("/rejected"),
+        (state, action) => {
+          state.loading = false;
+          state.error = action.payload;
+        }
+      );
   },
 });
-
 export const { clearStudentErrors } = studentSlice.actions;
 export default studentSlice.reducer;

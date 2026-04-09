@@ -1,26 +1,19 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getStudentProject, fetchSupervisors, sendSupervisorRequest } from "../../store/slices/studentSlice";
-import { 
-  LayoutTemplate, 
-  FileText, 
-  Clock, 
-  UserCheck, 
-  Send, 
-  X, 
-  Loader2, 
-  ExternalLink 
+import { getDashboardStats, fetchSupervisors, sendSupervisorRequest } from "../../store/slices/studentSlice";
+import {
+  LayoutTemplate, FileText, Clock, Send, Loader2, MessageSquare, AlertCircle, Bell
 } from "lucide-react";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
 
 const StudentDashboard = () => {
   const dispatch = useDispatch();
-  const { project, supervisors, loading } = useSelector((state) => state.student);
-  
+  const { project, supervisors, stats, loading } = useSelector((state) => state.student);
   const [selectedTeacher, setSelectedTeacher] = useState(null);
   const [message, setMessage] = useState("I am interested in having you as my project supervisor.");
 
   useEffect(() => {
-    dispatch(getStudentProject());
+    dispatch(getDashboardStats());
     dispatch(fetchSupervisors());
   }, [dispatch]);
 
@@ -29,6 +22,14 @@ const StudentDashboard = () => {
     dispatch(sendSupervisorRequest({ teacherId: selectedTeacher._id, message }));
     setSelectedTeacher(null);
   };
+
+  const chartData = [
+    { name: "Files", value: project?.files?.length || 0 },
+    { name: "Feedback", value: project?.feedback?.length || 0 },
+    { name: "Deadlines", value: stats?.upcomingDeadlines?.length || 0 },
+  ];
+  
+  const COLORS = ["#3b82f6", "#10b981", "#f59e0b"];
 
   if (loading && !project) {
     return (
@@ -40,148 +41,98 @@ const StudentDashboard = () => {
 
   return (
     <div className="p-6 md:p-8 bg-[#f8fafc] min-h-screen space-y-8">
-      <h1 className="text-2xl font-bold text-[#1e293b]">Student Dashboard</h1>
-
-      {/* Top Stats Cards (Matches Image 1) */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white p-6 rounded-xl border border-gray-100 flex items-center gap-4 shadow-sm">
-          <div className="p-3 bg-blue-50 text-blue-600 rounded-lg">
-            <LayoutTemplate size={24} />
-          </div>
-          <div>
-            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Project Status</p>
-            <p className="text-lg font-bold text-[#1e293b]">{project ? project.status : "No Project"}</p>
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-xl border border-gray-100 flex items-center gap-4 shadow-sm">
-          <div className="p-3 bg-green-50 text-green-600 rounded-lg">
-            <FileText size={24} />
-          </div>
-          <div>
-            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Files Uploaded</p>
-            <p className="text-lg font-bold text-[#1e293b]">{project?.files?.length || 0}</p>
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-xl border border-gray-100 flex items-center gap-4 shadow-sm">
-          <div className="p-3 bg-purple-50 text-purple-600 rounded-lg">
-            <Clock size={24} />
-          </div>
-          <div>
-            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Deadline</p>
-            <p className="text-lg font-bold text-[#1e293b]">{project?.deadline || "Not Set"}</p>
-          </div>
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-bold text-[#1e293b]">Dashboard</h1>
+        <div className="px-4 py-2 bg-white rounded-lg border border-gray-100 text-sm font-medium text-gray-600 shadow-sm">
+          Welcome back, {project?.student?.name || "Student"}
         </div>
       </div>
 
-      {/* Project Details Section (Matches Image 3) */}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
-        <div className="p-6 border-b border-gray-50">
-          <h2 className="font-bold text-gray-800">Project Details</h2>
-        </div>
-        <div className="p-6">
-          {project ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="space-y-4">
-                <div>
-                  <label className="text-[10px] font-bold text-gray-400 uppercase">Project Title</label>
-                  <p className="font-semibold text-gray-800">{project.title}</p>
-                </div>
-                <div>
-                  <label className="text-[10px] font-bold text-gray-400 uppercase">Status</label>
-                  <div className="mt-1">
-                    <span className="px-3 py-1 bg-yellow-100 text-yellow-700 text-xs font-bold rounded-full capitalize">
-                      {project.status}
-                    </span>
-                  </div>
-                </div>
-              </div>
-              <div className="space-y-4">
-                <div>
-                  <label className="text-[10px] font-bold text-gray-400 uppercase">Deadline</label>
-                  <p className="font-semibold text-gray-800 italic">No deadline set</p>
-                </div>
-                <div>
-                  <label className="text-[10px] font-bold text-gray-400 uppercase">Created</label>
-                  <p className="font-semibold text-gray-800">
-                    {new Date(project.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
-                  </p>
-                </div>
-              </div>
-              <div className="md:col-span-2">
-                <label className="text-[10px] font-bold text-gray-400 uppercase">Description</label>
-                <p className="text-sm text-gray-600 mt-1 leading-relaxed">{project.description}</p>
-              </div>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <StatCard icon={<LayoutTemplate size={20} />} color="blue" label="Status" value={project?.status || "N/A"} />
+        <StatCard icon={<FileText size={20} />} color="green" label="Files" value={project?.files?.length || 0} />
+        <StatCard icon={<MessageSquare size={20} />} color="orange" label="Feedback" value={project?.feedback?.length || 0} />
+        <StatCard icon={<Clock size={20} />} color="purple" label="Supervisor" value={project?.supervisor?.name || "Pending"} />
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-2 space-y-8">
+          <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+            <h2 className="font-bold text-gray-800 mb-6 flex items-center gap-2">
+              <LayoutTemplate className="text-blue-600" size={18} /> Activity Distribution
+            </h2>
+            <div className="h-64 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie data={chartData} innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
+                    {chartData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                  </Pie>
+                  <Tooltip />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
             </div>
-          ) : (
-            <p className="text-gray-500 text-sm italic">No project submitted yet.</p>
-          )}
-        </div>
-      </div>
+          </div>
 
-      {/* Available Supervisors Section (Matches Image 3 Footer) */}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
-        <div className="p-6 border-b border-gray-50">
-          <h2 className="font-bold text-gray-800">Available Supervisors</h2>
-          <p className="text-xs text-blue-600 mt-1">Browse and request supervision from available faculty members</p>
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+            <div className="p-6 border-b border-gray-50 flex items-center justify-between">
+              <h2 className="font-bold text-gray-800 flex items-center gap-2">
+                <Bell className="text-blue-500" size={18} /> Recent Notifications
+              </h2>
+            </div>
+            <div className="p-6 space-y-4">
+              {stats?.notifications?.length > 0 ? (
+                stats.notifications.map((note, i) => (
+                  <div key={i} className="p-4 bg-blue-50/50 border border-blue-100 rounded-xl flex items-center gap-3">
+                    <Info size={16} className="text-blue-500" />
+                    <p className="text-sm text-gray-700">{note.message}</p>
+                  </div>
+                ))
+              ) : (
+                <p className="text-center text-sm text-gray-400 py-4">All caught up!</p>
+              )}
+            </div>
+          </div>
         </div>
-        <div className="divide-y divide-gray-50">
-          {supervisors?.length > 0 ? (
-            supervisors.map((sup) => (
+
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden h-fit">
+          <div className="p-6 border-b border-gray-50">
+            <h2 className="font-bold text-gray-800">Quick Request</h2>
+          </div>
+          <div className="divide-y divide-gray-50 max-h-[400px] overflow-y-auto">
+            {supervisors?.slice(0, 5).map((sup) => (
               <div key={sup._id} className="p-4 flex items-center justify-between hover:bg-gray-50 transition-colors">
-                <div className="flex items-center gap-4">
-                  <div className="h-10 w-10 bg-blue-50 rounded-full flex items-center justify-center text-blue-600">
-                    <UserCheck size={20} />
+                <div className="flex items-center gap-3">
+                  <div className="h-8 w-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-bold text-xs">
+                    {sup.name.charAt(0)}
                   </div>
                   <div>
-                    <h4 className="text-sm font-bold text-gray-800">{sup.name}</h4>
-                    <p className="text-xs text-gray-500">{sup.department} • {sup.email}</p>
+                    <h4 className="text-xs font-bold text-gray-800">{sup.name}</h4>
+                    <p className="text-[9px] text-gray-400 uppercase">{sup.department}</p>
                   </div>
                 </div>
-                <button 
-                  onClick={() => setSelectedTeacher(sup)}
-                  className="px-4 py-2 bg-blue-600 text-white text-xs font-bold rounded-lg flex items-center gap-2 hover:bg-blue-700 transition-all"
-                >
-                  <Send size={14} /> Request
+                <button onClick={() => setSelectedTeacher(sup)} className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg">
+                  <Send size={14} />
                 </button>
               </div>
-            ))
-          ) : (
-            <div className="p-10 text-center text-gray-400 text-sm">No supervisors available.</div>
-          )}
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* Request Modal */}
       {selectedTeacher && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-white p-6 rounded-2xl max-w-md w-full shadow-2xl animate-in zoom-in-95 duration-200">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-bold text-gray-800">Request {selectedTeacher.name}</h2>
-              <button onClick={() => setSelectedTeacher(null)} className="text-gray-400 hover:text-gray-900">
-                <X size={20} />
-              </button>
-            </div>
-            <textarea 
+          <div className="bg-white p-6 rounded-2xl max-w-md w-full shadow-2xl">
+            <h2 className="text-lg font-bold text-gray-800 mb-4">Request {selectedTeacher.name}</h2>
+            <textarea
               className="w-full border border-gray-200 rounded-xl p-4 text-sm focus:ring-2 focus:ring-blue-500 outline-none mb-4 bg-gray-50"
-              rows="4"
+              rows="3"
               value={message}
               onChange={(e) => setMessage(e.target.value)}
             />
             <div className="flex gap-3">
-              <button 
-                onClick={() => setSelectedTeacher(null)}
-                className="flex-1 py-3 border border-gray-200 text-gray-600 font-bold rounded-xl hover:bg-gray-50 transition-all"
-              >
-                Cancel
-              </button>
-              <button 
-                onClick={handleSendRequest}
-                className="flex-1 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-all shadow-lg shadow-blue-200"
-              >
-                Send Request
-              </button>
+              <button onClick={() => setSelectedTeacher(null)} className="flex-1 py-3 text-gray-500 font-bold text-xs uppercase">Cancel</button>
+              <button onClick={handleSendRequest} className="flex-1 py-3 bg-blue-600 text-white font-bold rounded-xl text-xs uppercase">Send Request</button>
             </div>
           </div>
         </div>
@@ -189,5 +140,15 @@ const StudentDashboard = () => {
     </div>
   );
 };
+
+const StatCard = ({ icon, color, label, value }) => (
+  <div className="bg-white p-6 rounded-2xl border border-gray-100 flex items-center gap-4 shadow-sm">
+    <div className={`p-3 bg-${color}-50 text-${color}-600 rounded-xl`}>{icon}</div>
+    <div>
+      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{label}</p>
+      <p className="text-lg font-bold text-gray-800 truncate">{value}</p>
+    </div>
+  </div>
+);
 
 export default StudentDashboard;

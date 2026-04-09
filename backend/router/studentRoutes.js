@@ -1,13 +1,16 @@
 import express from "express";
 import {
-    getAvailablesupervisor,
+  downloadFiles,
+  getAvailablesupervisor,
+  getDashboardStats,
+  getFeedback,
   getStudentProject,
   requestSupervisor,
   submitProposal,
   uploadFiles,
 } from "../controller/studentcontroller.js";
 import { authHandler, isAuthorised } from "../middleware/authHandler.js";
-import { handleuploadError,upload} from "../middleware/upload.js";
+import { handleuploadError, upload } from "../middleware/upload.js";
 export const Studentrouter = express.Router();
 
 Studentrouter.get(
@@ -17,10 +20,10 @@ Studentrouter.get(
   getStudentProject,
 );
 Studentrouter.get(
-  "/fetch-Supervisor", 
+  "/fetch-Supervisor",
   authHandler,
   isAuthorised("Student"),
-  getAvailablesupervisor
+  getAvailablesupervisor,
 );
 Studentrouter.post(
   "/proposal",
@@ -37,8 +40,27 @@ Studentrouter.post(
   uploadFiles,
 );
 Studentrouter.post(
-  "/request-supervisor", 
-  authHandler, 
-  isAuthorised("Student"), 
-  requestSupervisor
+  "/request-supervisor",
+  authHandler,
+  isAuthorised("Student"),
+  requestSupervisor,
+);
+
+Studentrouter.get(
+  "/feedback/:projectId",
+  authHandler,
+  isAuthorised("Student"),
+  getFeedback,
+);
+Studentrouter.get(
+  "/getDashboardStats",
+  authHandler,
+  isAuthorised("Student"),
+  getDashboardStats,
+);
+Studentrouter.get(
+  "/download/:projectId/:fileId",
+  authHandler,
+  isAuthorised("Student"),
+  downloadFiles,
 );
