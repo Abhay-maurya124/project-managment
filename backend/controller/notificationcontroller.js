@@ -1,5 +1,5 @@
 import { asynchandler } from "../middleware/asyncHandler.js";
-import * as notificationServices from "../serrvices/notificationServices.js";
+import * as notificationServices from "../serrvices/notificationService.js";
 import { Notification } from "../models/notification.js";
 
 export const getNotifications = asynchandler(async (req, res) => {

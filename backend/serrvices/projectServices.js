@@ -38,3 +38,12 @@ export const addFilesToProject = async (projectId, files) => {
   await project.save();
   return project;
 };
+
+export const getAllProjectsforAdmin = async () => {
+  const projects = await Project.find()
+    .populate("student", "name email")
+    .populate("supervisor", "name email")
+    .sort({ createdAt: -1 });
+    // const total = await Project.countDocuments()
+    return projects
+};

@@ -34,5 +34,5 @@ supervisorSchema.index({ student: 1 });
 supervisorSchema.index({ supervisor: 1 });
 supervisorSchema.index({ status: 1 });
 
-export const supervisor =
+export const Supervisor =
   mongoose.models.supervisor || mongoose.model("supervisor", supervisorSchema);

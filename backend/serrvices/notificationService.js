@@ -37,7 +37,7 @@ export const markAllAsRead = async (userId) => {
       user: userId,
       isRead: false,
     },
-    { isRead: false },
+    { isRead: true },
   );
 };
 export const deleteNotification = async (notificationId, userId) => {

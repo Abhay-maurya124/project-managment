@@ -1,0 +1,49 @@
+import { asynchandler } from "../middleware/asyncHandler.js";
+import { User } from "../models/user.js";
+import * as projectServices from "../serrvices/projectServices.js";
+import * as notificationServices from "../serrvices/notificationService.js";
+import * as requestServices from "../serrvices/requestService.js";
+import * as fileServices from "../serrvices/fileServices.js";
+import { Project } from "../models/project.js";
+import { Notification } from "../models/notification.js";
+
+export const getAllProjects = asynchandler(async (req, res) => {
+  const projects = await projectServices.getAllProjectsforAdmin();
+  return res.status(200).json({
+    success: true,
+    data: { projects },
+  });
+});
+export const downloadFilesfromAdmin = asynchandler(async (req, res) => {
+  const { projectId, fileId } = req.params;
+  const user = req.user;
+  const project = await projectServices.getProjectById(projectId);
+  if (!project) {
+    return res.status(404).json({
+      success: false,
+      message: "Project not found",
+    });
+  }
+
+  const userRole = (user.role || "").toLowerCase();
+  const userId = user._id?.toString() || user.id;
+  const hasAccess =
+    userRole === "admin" ||
+    project.student._id.toString() === userId ||
+    (project.supervisor && project.supervisor._id.toString() === userId);
+
+  if (!hasAccess) {
+    return res.status(403).json({
+      status: false,
+      message: "Not Authorize to download file from this project",
+    });
+  }
+  const file = project.files.id(fileId);
+  if (!file) {
+    return res.status(404).json({
+      success: false,
+      message: "file not found",
+    });
+  }
+  fileServices.streamDownload(file.fileUrl, res, file.originalname);
+});

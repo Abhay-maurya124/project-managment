@@ -1,7 +1,7 @@
-import { supervisor } from "../models/supervisorrequest.js";
+import { Supervisor } from "../models/supervisorrequest.js";
 
 export const createRequest = async (requestData) => {
-  const existingRequest = await supervisor.findOne({
+  const existingRequest = await Supervisor.findOne({
     student: requestData.student,
     supervisor: requestData.supervisor,
     status: "pending",
@@ -14,5 +14,8 @@ export const createRequest = async (requestData) => {
     error.statusCode = 400;
     throw error;
   }
-  return await supervisor.create(requestData);
+  return await Supervisor.create(requestData);
 };
+
+export const getAllRequests = async (filters) => {};
+export const acceptRequest = async (requestId, teacherId) => {};

@@ -44,3 +44,18 @@ export const deleteUser = async (id) => {
   }
   return await user.deleteOne();
 };
+
+export const assignSupervisorDirectly = async (studentId, supervisorId) => {
+  const student = await User.findOne({ _id: studentId, role: "Student" });
+  const supervisor = await User.findOne({ _id: supervisorId, role: "Teacher" });
+  if (!student || !teacher) {
+    throw new Error("Student or Supervisor not found");
+  }
+  if (!supervisorId.hascapacity()) {
+    throw new Error("User not found");
+  }
+  student.superVisor = supervisorId;
+  supervisor.assigendStudents.push(studentId);
+  await Promise.all(student.save(), supervisor.save());
+  return (supervisor, student);
+};

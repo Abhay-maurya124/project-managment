@@ -1,10 +1,12 @@
 import express from "express";
 import {
   allUser,
+  assignSupervisor,
   createStudent,
   createTeacher,
   deleteStudent,
   deleteTeacher,
+  getAdminDashboardStats,
   updateStudent,
   updateTeacher,
 } from "../controller/adminController.js";
@@ -13,7 +15,7 @@ export const adminrouter = express.Router();
 
 adminrouter.post(
   "/createStudent",
-  authHandler, 
+  authHandler,
   isAuthorised("Admin"),
   createStudent,
 );
@@ -31,7 +33,7 @@ adminrouter.delete(
 );
 adminrouter.post(
   "/createTeacher",
-  authHandler, 
+  authHandler,
   isAuthorised("Admin"),
   createTeacher,
 );
@@ -48,9 +50,16 @@ adminrouter.delete(
   deleteTeacher,
 );
 
+adminrouter.get("/allUser", authHandler, isAuthorised("Admin"), allUser);
 adminrouter.get(
- "/allUser",
-  authHandler, 
+  "/fetch-dashboard-stats",
+  authHandler,
   isAuthorised("Admin"),
-  allUser
+  getAdminDashboardStats,
+);
+adminrouter.post(
+  "/assign-supervisor",
+  authHandler,
+  isAuthorised("Admin"),
+  assignSupervisor,
 );
