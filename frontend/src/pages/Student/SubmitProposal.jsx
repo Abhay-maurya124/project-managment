@@ -3,18 +3,14 @@ import { useDispatch, useSelector } from "react-redux";
 import { submitProposal } from "../../store/slices/studentSlice";
 import { Send, FileCheck, AlertCircle } from "lucide-react";
 import { Link } from "react-router-dom";
-
 const SubmitProposal = () => {
   const dispatch = useDispatch();
   const { project, loading } = useSelector((state) => state.student);
   const [formData, setFormData] = useState({ title: "", description: "" });
-
   const handleSubmit = (e) => {
     e.preventDefault();
     dispatch(submitProposal(formData));
   };
-
-  // Logic: Show "Already Submitted" ONLY if project exists AND is NOT rejected
   if (project && project.status !== "rejected") {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] p-6 text-center">
@@ -35,7 +31,6 @@ const SubmitProposal = () => {
       </div>
     );
   }
-
   return (
     <div className="max-w-2xl mx-auto p-6 md:p-10">
       <div className="bg-white p-8 rounded-3xl shadow-xl border border-gray-100">
@@ -48,7 +43,6 @@ const SubmitProposal = () => {
             </div>
           )}
         </div>
-
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label className="block text-sm font-semibold text-gray-600 mb-2">Project Title</label>
@@ -85,5 +79,4 @@ const SubmitProposal = () => {
     </div>
   );
 };
-
 export default SubmitProposal;

@@ -1,44 +1,41 @@
 import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Plus, Search, Filter, Edit2, Trash2, BookOpen, UserX } from "lucide-react";
-import { getAlluser, deleteStudent } from "../../store/slices/adminSlice.js";
+import { getAlluser, deleteStudent, getAllProjects } from "../../store/slices/adminSlice.js";
 import AddStudent from "../../components/modal/AddStudent.jsx";
 const ManageStudents = () => {
   const dispatch = useDispatch();
-  const { Alluser, projects } = useSelector((state) => state.admin);
-
+  const { Alluser, allProjects } = useSelector((state) => state.admin);
   const [showModal, setShowModal] = useState(false);
   const [editingStudent, setEditingStudent] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterDept, setFilterDept] = useState("all");
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [studentToDelete, setStudentToDelete] = useState(null);
-
   useEffect(() => {
     dispatch(getAlluser());
+    dispatch(getAllProjects());
   }, [dispatch]);
-
   const students = useMemo(() => {
     if (!Alluser || !Array.isArray(Alluser)) return [];
-const studentAlluser = Alluser.filter((u) => u && u.role?.toLowerCase() === "student");
-    return studentAlluser.map((student) => {
-      const project = (projects || []).find(
-        (p) => p.student?._id === student._id || p.student === student._id
-      );
+    return Alluser.filter(u => u.role?.toLowerCase() === "student").map((student) => {
+      const project = (allProjects || []).find(p => p.student?._id === student._id || p.student === student._id);
+      const supervisorDisplayName =
+        project?.supervisor?.name ||
+        student.superVisor?.name ||
+        "Unassigned";
       return {
         ...student,
-        projectTitle: project?.title || student.projects || "No Project",
-        supervisor: project?.supervisor?.name || student.superVisor || "Unassigned",
-        projectStatus: project?.status || "Pending",
+        projectTitle: project?.title || "No Project",
+        supervisorName: supervisorDisplayName,
+        projectStatus: project?.status || "Not Submitted",
       };
     });
-  }, [Alluser, projects]);
-
+  }, [Alluser, allProjects]);
   const departments = useMemo(() => {
     const depts = students.map(s => s.department).filter(Boolean);
     return Array.from(new Set(depts));
   }, [students]);
-
   const filteredStudents = students.filter(student => {
     const searchLower = searchTerm.toLowerCase();
     const matchSearch =
@@ -47,21 +44,20 @@ const studentAlluser = Alluser.filter((u) => u && u.role?.toLowerCase() === "stu
     const matchFilter = filterDept === "all" || student.department === filterDept;
     return matchSearch && matchFilter;
   });
-
   const getStatusColor = (status) => {
     switch (status?.toLowerCase()) {
       case "accepted": return "bg-green-100 text-green-700";
+      case "approved": return "bg-blue-100 text-blue-700";
       case "rejected": return "bg-red-100 text-red-700";
       case "pending": return "bg-yellow-100 text-yellow-700";
+      case "not submitted": return "bg-gray-100 text-gray-500 font-normal italic";
       default: return "bg-gray-100 text-gray-700";
     }
   };
-
   const getSupervisorColor = (name) => {
     if (!name || name === "Unassigned") return "bg-gray-100 text-gray-500";
     return "bg-indigo-50 text-indigo-700 border border-indigo-100";
   };
-
   return (
     <div className="p-4 md:p-8 bg-gray-50 min-h-screen">
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
@@ -76,8 +72,7 @@ const studentAlluser = Alluser.filter((u) => u && u.role?.toLowerCase() === "stu
           <Plus size={20} /> Add New Student
         </button>
       </div>
-
-      {/* Filters Section */}
+      {}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <div className="relative col-span-1 md:col-span-2">
           <Search className="absolute left-3 top-2.5 text-gray-400" size={18} />
@@ -103,8 +98,7 @@ const studentAlluser = Alluser.filter((u) => u && u.role?.toLowerCase() === "stu
           </select>
         </div>
       </div>
-
-      {/* Content Rendering */}
+      {}
       {filteredStudents.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 bg-white rounded-xl border border-dashed border-gray-300">
           <UserX size={48} className="text-gray-400 mb-4" />
@@ -136,7 +130,7 @@ const studentAlluser = Alluser.filter((u) => u && u.role?.toLowerCase() === "stu
                   </td>
                   <td className="px-6 py-4">
                     <span className={`px-2 py-1 rounded text-xs font-medium ${getSupervisorColor(student.supervisor)}`}>
-                      {student.supervisor}
+                      {student.supervisorName}
                     </span>
                   </td>
                   <td className="px-6 py-4">
@@ -167,15 +161,13 @@ const studentAlluser = Alluser.filter((u) => u && u.role?.toLowerCase() === "stu
           </table>
         </div>
       )}
-
-      {/* Add Student Component Integration */}
+      {}
       <AddStudent
         isOpen={showModal}
         onClose={() => setShowModal(false)}
         editingStudent={editingStudent}
       />
-
-      {/* Delete Modal Remains here for simplicity */}
+      {}
       {showDeleteModal && (
         <div className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
           <div className="bg-white w-full max-w-sm rounded-2xl p-6 text-center shadow-2xl">
@@ -197,5 +189,4 @@ const studentAlluser = Alluser.filter((u) => u && u.role?.toLowerCase() === "stu
     </div>
   );
 };
-
 export default ManageStudents;

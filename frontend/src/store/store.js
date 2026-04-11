@@ -8,7 +8,6 @@ import projectReducer from "./slices/projectSlice";
 import requestReducer from "./slices/requestSlice";
 import studentReducer from "./slices/studentSlice";
 import teacherReducer from "./slices/teacherSlice";
-
 export const store = configureStore({
   reducer: {
     auth: authReducer,

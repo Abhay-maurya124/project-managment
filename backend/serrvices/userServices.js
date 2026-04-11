@@ -1,61 +1,1 @@
-import { User } from "../models/user.js";
-
-export const createUser = async (userData) => {
-  try {
-    const user = new User(userData);
-    return await user.save();
-  } catch (error) {
-    throw new Error(`Error creating user :${error.message}`);
-  }
-};
-export const updateStudentData = async (id, updateData) => {
-  try {
-    return await User.findByIdAndUpdate(id, updateData, {
-      new: true,
-      runValidators: true,
-    }).select("-password");
-  } catch (error) {
-    throw new Error(`Error creating user :${error.message}`);
-  }
-};
-export const updateTeacherData = async (id, updateData) => {
-  try {
-    return await User.findByIdAndUpdate(id, updateData, {
-      new: true,
-      runValidators: true,
-    }).select("-password");
-  } catch (error) {
-    throw new Error(`Error creating user :${error.message}`);
-  }
-};
-export const getUserById = async (id) => {
-  try {
-    return await User.findById(id).select(
-      "-password -resetPasswordToken -resetTokenExpire",
-    );
-  } catch (error) {
-    throw new Error(`Error creating user :${error.message}`);
-  }
-};
-export const deleteUser = async (id) => {
-  const user = await User.findById(id);
-  if (!user) {
-    throw new Error("User not found");
-  }
-  return await user.deleteOne();
-};
-
-export const assignSupervisorDirectly = async (studentId, supervisorId) => {
-  const student = await User.findOne({ _id: studentId, role: "Student" });
-  const supervisor = await User.findOne({ _id: supervisorId, role: "Teacher" });
-  if (!student || !teacher) {
-    throw new Error("Student or Supervisor not found");
-  }
-  if (!supervisorId.hascapacity()) {
-    throw new Error("User not found");
-  }
-  student.superVisor = supervisorId;
-  supervisor.assigendStudents.push(studentId);
-  await Promise.all(student.save(), supervisor.save());
-  return (supervisor, student);
-};
+import { User } from "../models/user.js";export const createUser = async (userData) => {  try {    const user = new User(userData);    return await user.save();  } catch (error) {    throw new Error(`Error creating user :${error.message}`);  }};export const updateStudentData = async (id, updateData) => {  try {    return await User.findByIdAndUpdate(id, updateData, {      new: true,      runValidators: true,    }).select("-password");  } catch (error) {    throw new Error(`Error creating user :${error.message}`);  }};export const updateTeacherData = async (id, updateData) => {  try {    return await User.findByIdAndUpdate(id, updateData, {      new: true,      runValidators: true,    }).select("-password");  } catch (error) {    throw new Error(`Error creating user :${error.message}`);  }};export const getUserById = async (id) => {  try {    return await User.findById(id).select(      "-password -resetPasswordToken -resetTokenExpire",    );  } catch (error) {    throw new Error(`Error creating user :${error.message}`);  }};export const deleteUser = async (id) => {  const user = await User.findById(id);  if (!user) {    throw new Error("User not found");  }  return await user.deleteOne();};export const assignSupervisorDirectly = async (studentId, supervisorId) => {  const student = await User.findOne({ _id: studentId, role: "Student" });  const supervisor = await User.findOne({ _id: supervisorId, role: "Teacher" });  if (!student || !supervisor) {    throw new Error("Student or Supervisor not found");  }  if (!supervisor.hasCapacity()) {    throw new Error("Teacher has reached maximum student capacity");  }  student.superVisor = supervisor._id;  supervisor.assigendStudents.push(student._id);  await Project.findOneAndUpdate(    { student: studentId },     { supervisor: supervisorId },    { new: true }  );  await Promise.all([student.save(), supervisor.save()]);  return { student, supervisor };};

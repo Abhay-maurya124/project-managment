@@ -4,30 +4,26 @@ import { Search, Plus, Calendar as CalendarIcon, User, X, Send } from "lucide-re
 import { fetchAllProjects } from "../../store/slices/projectSlice";
 import { createDeadline } from "../../store/slices/deadlineSlice";
 import { toggleDeadlineModel } from "../../store/slices/popupSlice";
-
+import { getAlluser } from "../../store/slices/adminSlice";
 const DeadlinesPage = () => {
   const dispatch = useDispatch();
-
   const { projects = [] } = useSelector((state) => state.project);
+  const { Alluser = [] } = useSelector((state) => state.admin);
   const { isDeadlineModalOpen } = useSelector((state) => state.popup);
   const { loading: deadlineLoading } = useSelector((state) => state.deadline);
-
   const [searchTerm, setSearchTerm] = useState("");
   const [formData, setFormData] = useState({
     projectId: "",
     name: "",
     dueDate: ""
   });
-
   useEffect(() => {
     dispatch(fetchAllProjects());
+    dispatch(getAlluser());
   }, [dispatch]);
-
   const handleSubmit = (e) => {
     e.preventDefault();
-
     if (!formData.projectId) return;
-
     dispatch(createDeadline({
       projectId: formData.projectId,
       deadlineData: {
@@ -42,16 +38,13 @@ const DeadlinesPage = () => {
       }
     });
   };
-
   const filteredProjects = projects.filter(
     (proj) =>
       proj.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       proj.student?.name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
   return (
     <div className="min-h-screen bg-gray-50 p-6 space-y-6">
-
       <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex justify-between items-center">
         <div>
           <h1 className="text-xl font-bold text-gray-800">Manage Deadlines</h1>
@@ -64,7 +57,6 @@ const DeadlinesPage = () => {
           <Plus size={18} /> Create/Update Deadline
         </button>
       </div>
-
       <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
         <p className="text-xs font-bold text-gray-400 uppercase mb-2 tracking-wider">Search Deadlines</p>
         <div className="relative">
@@ -78,7 +70,6 @@ const DeadlinesPage = () => {
           />
         </div>
       </div>
-
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         <div className="p-4 border-b">
           <h2 className="font-bold text-gray-700">Project Deadlines</h2>
@@ -110,13 +101,17 @@ const DeadlinesPage = () => {
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-700 font-medium">{proj.title}</td>
                   <td className="px-6 py-4">
-                    {proj.supervisor ? (
-                      <span className="bg-green-100 text-green-700 px-2 py-1 rounded-md text-xs font-medium">
-                        {proj.supervisor.name}
-                      </span>
-                    ) : (
-                      <span className="text-gray-400 text-xs italic">Not Assigned</span>
-                    )}
+                    {(() => {
+                      const studentFull = Alluser.find(u => u._id === (proj.student?._id || proj.student));
+                      const supervisorName = proj.supervisor?.name || studentFull?.superVisor?.name;
+                      return supervisorName ? (
+                        <span className="bg-green-100 text-green-700 px-2 py-1 rounded-md text-xs font-medium">
+                          {supervisorName}
+                        </span>
+                      ) : (
+                        <span className="text-gray-400 text-xs italic">Not Assigned</span>
+                      );
+                    })()}
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-2 text-sm text-blue-600 font-semibold bg-blue-50 px-2 py-1 rounded w-fit">
@@ -133,7 +128,6 @@ const DeadlinesPage = () => {
           </table>
         </div>
       </div>
-
       {isDeadlineModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200">
@@ -146,7 +140,6 @@ const DeadlinesPage = () => {
                 <X size={20} />
               </button>
             </div>
-
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
               <div>
                 <label className="block text-sm font-semibold text-gray-600 mb-1">Select Project</label>
@@ -162,7 +155,6 @@ const DeadlinesPage = () => {
                   ))}
                 </select>
               </div>
-
               <div>
                 <label className="block text-sm font-semibold text-gray-600 mb-1">Deadline Label</label>
                 <input
@@ -174,7 +166,6 @@ const DeadlinesPage = () => {
                   required
                 />
               </div>
-
               <div>
                 <label className="block text-sm font-semibold text-gray-600 mb-1">Due Date</label>
                 <input
@@ -185,7 +176,6 @@ const DeadlinesPage = () => {
                   required
                 />
               </div>
-
               <div className="pt-4">
                 <button
                   type="submit"
@@ -207,5 +197,4 @@ const DeadlinesPage = () => {
     </div>
   );
 };
-
 export default DeadlinesPage;

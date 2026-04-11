@@ -3,28 +3,22 @@ import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { getProjectFeedback } from "../../store/slices/studentSlice";
 import { MessageSquare, User, Calendar, Loader2 } from "lucide-react";
-
 const FeedbackPage = () => {
   const { projectId } = useParams();
   const dispatch = useDispatch();
   const { project, loading } = useSelector((state) => state.student);
-
   useEffect(() => {
     if (projectId) dispatch(getProjectFeedback(projectId));
   }, [dispatch, projectId]);
-
   const sortedFeedback = project?.feedback 
     ? [...project.feedback].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
     : [];
-
   if (loading) return <div className="flex h-screen items-center justify-center"><Loader2 className="animate-spin" /></div>;
-
   return (
     <div className="p-6 md:p-10 bg-[#f8fafc] min-h-screen">
       <div className="max-w-4xl mx-auto">
         <h1 className="text-2xl font-bold text-[#1e293b]">Supervisor Feedback</h1>
         <p className="text-sm text-gray-500 mb-8">Official reviews for: {project?.title || "Project"}</p>
-
         <div className="space-y-6">
           {sortedFeedback.length > 0 ? (
             sortedFeedback.map((f, i) => (
@@ -58,5 +52,4 @@ const FeedbackPage = () => {
     </div>
   );
 };
-
 export default FeedbackPage;

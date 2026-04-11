@@ -3,32 +3,26 @@ import { useDispatch, useSelector } from "react-redux";
 import { Plus, Search, Edit2, Trash2, UserX, GraduationCap, Users } from "lucide-react";
 import { getAlluser, deleteTeacher } from "../../store/slices/adminSlice.js";
 import AddTeacher from "../../components/modal/AddTeacher";
-
 const ManageTeachers = () => {
   const dispatch = useDispatch();
   const { Alluser } = useSelector((state) => state.admin);
-
   const [showModal, setShowModal] = useState(false);
   const [editingTeacher, setEditingTeacher] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterDept, setFilterDept] = useState("all");
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [teacherToDelete, setTeacherToDelete] = useState(null);
-
   useEffect(() => {
     dispatch(getAlluser());
   }, [dispatch]);
-
   const teachers = useMemo(() => {
     if (!Alluser || !Array.isArray(Alluser)) return [];
     return Alluser.filter((u) => u && u.role?.toLowerCase() === "teacher");
   }, [Alluser]);
-
   const departments = useMemo(() => {
     const depts = teachers.map(t => t.department).filter(Boolean);
     return Array.from(new Set(depts));
   }, [teachers]);
-
   const filteredTeachers = teachers.filter(teacher => {
     const searchLower = searchTerm.toLowerCase();
     const matchSearch = 
@@ -37,10 +31,9 @@ const ManageTeachers = () => {
     const matchFilter = filterDept === "all" || teacher.department === filterDept;
     return matchSearch && matchFilter;
   });
-
   return (
     <div className="p-4 md:p-8 bg-gray-50 min-h-screen">
-      {/* Header Section */}
+      {}
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Manage Faculty</h1>
@@ -55,8 +48,7 @@ const ManageTeachers = () => {
           <Plus size={20} /> Add New Teacher
         </button>
       </div>
-
-      {/* Filters Section */}
+      {}
       <div className="flex flex-col md:flex-row gap-4 mb-6">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
@@ -77,8 +69,7 @@ const ManageTeachers = () => {
           {departments.map(dept => <option key={dept} value={dept}>{dept}</option>)}
         </select>
       </div>
-
-      {/* Table Section */}
+      {}
       <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
@@ -158,14 +149,12 @@ const ManageTeachers = () => {
           </table>
         </div>
       </div>
-
-      {/* Modals */}
+      {}
       <AddTeacher 
         isOpen={showModal} 
         onClose={() => setShowModal(false)} 
         editingTeacher={editingTeacher} 
       />
-
       {showDeleteModal && (
         <div className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl animate-in zoom-in-95 duration-200 border border-gray-100">
@@ -196,5 +185,4 @@ const ManageTeachers = () => {
     </div>
   );
 };
-
 export default ManageTeachers;

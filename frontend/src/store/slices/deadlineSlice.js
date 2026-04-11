@@ -1,7 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { axiosInstance } from "../../lib/axios";
 import { toast } from "react-toastify";
-
 // Thunk to call the backend API
 export const createDeadline = createAsyncThunk(
   "deadline/create",
@@ -21,7 +20,6 @@ export const createDeadline = createAsyncThunk(
     }
   },
 );
-
 const deadlineSlice = createSlice({
   name: "deadline",
   initialState: {
@@ -46,5 +44,4 @@ const deadlineSlice = createSlice({
       });
   },
 });
-
 export default deadlineSlice.reducer;

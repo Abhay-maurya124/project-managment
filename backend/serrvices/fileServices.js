@@ -1,25 +1,1 @@
-import fs from "fs";
-import ErrorHandler from "../middleware/error.js";
-export const streamDownload = async (filepath, res, originalName) => {
-  try {
-    if (!fs.existsSync(filepath)) {
-      throw new ErrorHandler("file not found", 404);
-    }
-    res.download(filepath, originalName, (err) => {
-      if (err) {
-        throw new ErrorHandler("Error downloading file", 500);
-      }
-    });
-  } catch (error) {
-    if (error instanceof ErrorHandler) {
-      return res.status(err.statusCode).json({
-        success: false,
-        error: error.message,
-      });
-    }
-    return res.status(500).json({
-      success: false,
-      error: "Error streaming file",
-    });
-  }
-};
+import fs from "fs";import ErrorHandler from "../middleware/error.js";export const streamDownload = async (filepath, res, originalName) => {  try {    if (!fs.existsSync(filepath)) {      throw new ErrorHandler("file not found", 404);    }    res.download(filepath, originalName, (err) => {      if (err) {        throw new ErrorHandler("Error downloading file", 500);      }    });  } catch (error) {    if (error instanceof ErrorHandler) {      return res.status(err.statusCode).json({        success: false,        error: error.message,      });    }    return res.status(500).json({      success: false,      error: "Error streaming file",    });  }};

@@ -2,29 +2,24 @@ import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchNotifications, markAsRead, deleteNotificationAction } from "../../store/slices/notificationSlice";
 import { Bell, Info, Clock, CheckCircle, Trash2, ShieldAlert } from "lucide-react";
-
 const NotificationsPage = () => {
   const dispatch = useDispatch();
   const { list, loading, unreadCount, highPriorityCount } = useSelector((state) => state.notification);
-
   useEffect(() => {
     dispatch(fetchNotifications());
   }, [dispatch]);
-
   const handleMarkRead = (id) => {
     dispatch(markAsRead(id));
   };
-
   const handleDelete = (id) => {
     if (window.confirm("Delete this notification?")) {
       dispatch(deleteNotificationAction(id));
     }
   };
-
   return (
     <div className="p-6 md:p-10 bg-gray-50 min-h-screen">
       <div className="max-w-3xl mx-auto">
-        {/* Header Section */}
+        {}
         <div className="flex justify-between items-end mb-8">
           <div className="flex items-center gap-3">
             <div className="relative">
@@ -43,7 +38,6 @@ const NotificationsPage = () => {
             </div>
           )}
         </div>
-
         {loading ? (
           <div className="space-y-4">
             {[1, 2, 3].map((i) => (
@@ -62,7 +56,6 @@ const NotificationsPage = () => {
                 <div className={`p-3 rounded-xl ${note.priority === 'high' ? 'bg-red-50 text-red-600' : 'bg-blue-50 text-blue-600'}`}>
                   <Info size={20} />
                 </div>
-                
                 <div className="flex-1">
                   <div className="flex justify-between items-start">
                     <h3 className="font-bold text-gray-800 text-sm capitalize">{note.type} Update</h3>
@@ -77,9 +70,7 @@ const NotificationsPage = () => {
                       </button>
                     </div>
                   </div>
-                  
                   <p className="text-sm text-gray-600 my-1">{note.message}</p>
-                  
                   <div className="flex items-center gap-1 text-[10px] text-gray-400 font-bold uppercase mt-2">
                     <Clock size={10} /> {new Date(note.createdAt).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}
                   </div>
@@ -97,5 +88,4 @@ const NotificationsPage = () => {
     </div>
   );
 };
-
 export default NotificationsPage;

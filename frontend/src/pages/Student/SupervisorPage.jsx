@@ -2,23 +2,19 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchSupervisors, sendSupervisorRequest } from "../../store/slices/studentSlice";
 import { UserCheck, Mail, BookOpen, Send, X, Loader2 } from "lucide-react";
-
 const SupervisorPage = () => {
   const dispatch = useDispatch();
   const { supervisors, loading } = useSelector((state) => state.student);
   const [selectedTeacher, setSelectedTeacher] = useState(null);
   const [message, setMessage] = useState("I am interested in having you as my project supervisor.");
-
   useEffect(() => {
     dispatch(fetchSupervisors());
   }, [dispatch]);
-
   const handleSendRequest = () => {
     if (!selectedTeacher) return;
     dispatch(sendSupervisorRequest({ teacherId: selectedTeacher._id, message }));
     setSelectedTeacher(null);
   };
-
   if (loading) {
     return (
       <div className="flex h-screen items-center justify-center">
@@ -26,11 +22,9 @@ const SupervisorPage = () => {
       </div>
     );
   }
-
   return (
     <div className="p-6 md:p-10 bg-gray-50 min-h-screen">
       <h1 className="text-2xl font-bold text-gray-800 mb-6 text-center">Available Supervisors</h1>
-      
       {supervisors?.length === 0 ? (
         <div className="text-center py-10 text-gray-500">No supervisors available at the moment.</div>
       ) : (
@@ -42,7 +36,6 @@ const SupervisorPage = () => {
               </div>
               <h3 className="text-lg font-bold text-gray-800 text-center mb-1">{sup.name}</h3>
               <p className="text-sm text-gray-500 text-center mb-4">{sup.department}</p>
-              
               <div className="space-y-3 mb-6">
                 <div className="flex items-center gap-3 text-sm text-gray-600">
                   <Mail size={16} className="text-gray-400" /> {sup.email}
@@ -58,7 +51,6 @@ const SupervisorPage = () => {
                   </div>
                 )}
               </div>
-
               <button 
                 onClick={() => setSelectedTeacher(sup)}
                 className="w-full py-2 bg-blue-600 text-white rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-blue-700 transition-colors"
@@ -69,8 +61,7 @@ const SupervisorPage = () => {
           ))}
         </div>
       )}
-
-      {/* Request Modal */}
+      {}
       {selectedTeacher && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
           <div className="bg-white p-6 rounded-3xl max-w-md w-full shadow-2xl">
@@ -99,5 +90,4 @@ const SupervisorPage = () => {
     </div>
   );
 };
-
 export default SupervisorPage;

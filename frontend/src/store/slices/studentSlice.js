@@ -1,7 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { axiosInstance } from "../../lib/axios";
 import { toast } from "react-toastify";
-
 // 1. Fetch Student Project
 export const getStudentProject = createAsyncThunk(
   "student/getProject",
@@ -14,7 +13,6 @@ export const getStudentProject = createAsyncThunk(
     }
   }
 );
-
 // 2. Submit Project Proposal
 export const submitProposal = createAsyncThunk(
   "student/submitProposal",
@@ -29,7 +27,6 @@ export const submitProposal = createAsyncThunk(
     }
   }
 );
-
 // 3. Upload Project Files
 export const uploadProjectFiles = createAsyncThunk(
   "student/uploadFiles",
@@ -48,7 +45,6 @@ export const uploadProjectFiles = createAsyncThunk(
     }
   }
 );
-
 // 4. Fetch Available Supervisors
 export const fetchSupervisors = createAsyncThunk(
   "student/fetchSupervisors",
@@ -61,7 +57,6 @@ export const fetchSupervisors = createAsyncThunk(
     }
   }
 );
-
 // 5. Request a Supervisor
 export const sendSupervisorRequest = createAsyncThunk(
   "student/requestSupervisor",
@@ -76,7 +71,6 @@ export const sendSupervisorRequest = createAsyncThunk(
     }
   }
 );
-
 // 6. Get Feedback (Specific Project)
 export const getProjectFeedback = createAsyncThunk(
   "student/getFeedback",
@@ -89,20 +83,18 @@ export const getProjectFeedback = createAsyncThunk(
     }
   }
 );
-
 // 7. Get Dashboard Stats (Dynamic Data)
 export const getDashboardStats = createAsyncThunk(
   "student/getDashboardStats",
   async (_, { rejectWithValue }) => {
     try {
       const { data } = await axiosInstance.get("/student/getDashboardStats");
-      return data.data; // Contains project, deadlines, notifications, etc.
+      return data.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message);
     }
   }
 );
-
 // const studentSlice = createSlice({
 //   name: "student",
 //   initialState: {
@@ -122,7 +114,7 @@ export const getDashboardStats = createAsyncThunk(
 //   },
 //   extraReducers: (builder) => {
 //     builder
-//       // 1. Specific Cases (MUST COME FIRST)
+//      
 //       .addCase(getStudentProject.fulfilled, (state, action) => {
 //         state.loading = false;
 //         state.project = action.payload;
@@ -145,8 +137,7 @@ export const getDashboardStats = createAsyncThunk(
 //         state.stats.upcomingDeadlines = action.payload.upcomingDeadline;
 //         state.stats.notifications = action.payload.topNotification;
 //       })
-
-//       // 2. General Matchers (MUST COME AFTER CASES)
+//      
 //       .addMatcher(
 //         (action) => action.type.endsWith("/pending"),
 //         (state) => {
@@ -182,7 +173,6 @@ const studentSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // 1. Specific Cases (MUST COME FIRST)
       .addCase(getStudentProject.fulfilled, (state, action) => {
         state.loading = false;
         state.project = action.payload;
@@ -205,8 +195,6 @@ const studentSlice = createSlice({
         state.stats.upcomingDeadlines = action.payload.upcomingDeadline;
         state.stats.notifications = action.payload.topNotification;
       })
-
-      // 2. General Matchers (MUST COME AFTER CASES)
       .addMatcher(
         (action) => action.type.endsWith("/pending"),
         (state) => {

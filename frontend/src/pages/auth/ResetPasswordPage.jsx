@@ -3,14 +3,12 @@ import { useNavigate, Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { Mail, Loader2, LogIn } from "lucide-react";
 import { resetpassword } from "../../store/slices/authSlice";
-
 const ResetPasswordPage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { authUser, isRequestingForToken } = useSelector((state) => state.auth);
   const [email, setemail] = useState("");
   const [errors, setErrors] = useState({});
-
   useEffect(() => {
     if (authUser) {
       if (authUser.role === "Admin") navigate("/admin-dashboard");
@@ -18,11 +16,9 @@ const ResetPasswordPage = () => {
       else navigate("/StudentDashboard");
     }
   }, [authUser, navigate]);
-
   const validateForm = () => {
     const newErrors = {};
     const emailRegex = /\S+@\S+\.\S+/;
-
     if (!email) {
       newErrors.email = "Email is required";
     } else if (!emailRegex.test(email)) {
@@ -31,14 +27,11 @@ const ResetPasswordPage = () => {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-
   const handleSubmit = (e) => {
     e.preventDefault(); 
     if (!validateForm()) return;
-    
     dispatch(resetpassword(email ));
   };
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <div className="max-w-md w-full bg-white rounded-xl shadow-lg p-8">
@@ -51,7 +44,6 @@ const ResetPasswordPage = () => {
             Enter your email and we'll send you a reset link.
           </p>
         </div>
-
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
@@ -67,7 +59,6 @@ const ResetPasswordPage = () => {
             </div>
             {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
           </div>
-
           <button
             type="submit"
             disabled={isRequestingForToken}
@@ -82,7 +73,6 @@ const ResetPasswordPage = () => {
               "Send Reset Link"
             )}
           </button>
-          
           <div className="text-center">
             <Link to="/login" className="text-sm text-blue-600 hover:underline">
               Back to Login
@@ -93,5 +83,4 @@ const ResetPasswordPage = () => {
     </div>
   );
 };
-
 export default ResetPasswordPage;

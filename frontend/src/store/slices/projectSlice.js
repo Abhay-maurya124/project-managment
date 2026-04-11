@@ -1,19 +1,17 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { axiosInstance } from "../../lib/axios";
 import { toast } from "react-toastify";
-
 export const fetchAllProjects = createAsyncThunk(
   "project/fetchAll",
   async (_, { rejectWithValue }) => {
     try {
-      const { data } = await axiosInstance.get("/project"); // Admin route
-      return data; // returns the projects array
+      const { data } = await axiosInstance.get("/project");
+      return data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || "Failed to fetch projects");
     }
   }
 );
-
 const projectSlice = createSlice({
   name: "project",
   initialState: {
@@ -27,10 +25,8 @@ const projectSlice = createSlice({
       .addCase(fetchAllProjects.pending, (state) => {
         state.loading = true;
       })
-     // Inside projectSlice.js
 .addCase(fetchAllProjects.fulfilled, (state, action) => {
   state.loading = false;
-  // Accessing the nested 'projects' array from the data object
   state.projects = action.payload.data?.projects || []; 
 })
       .addCase(fetchAllProjects.rejected, (state, action) => {
@@ -40,5 +36,4 @@ const projectSlice = createSlice({
       });
   },
 });
-
 export default projectSlice.reducer;

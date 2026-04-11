@@ -5,32 +5,26 @@ import {
   LayoutTemplate, FileText, Clock, Send, Loader2, MessageSquare, AlertCircle, Bell
 } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
-
 const StudentDashboard = () => {
   const dispatch = useDispatch();
   const { project, supervisors, stats, loading } = useSelector((state) => state.student);
   const [selectedTeacher, setSelectedTeacher] = useState(null);
   const [message, setMessage] = useState("I am interested in having you as my project supervisor.");
-
   useEffect(() => {
     dispatch(getDashboardStats());
     dispatch(fetchSupervisors());
   }, [dispatch]);
-
   const handleSendRequest = () => {
     if (!selectedTeacher) return;
     dispatch(sendSupervisorRequest({ teacherId: selectedTeacher._id, message }));
     setSelectedTeacher(null);
   };
-
   const chartData = [
     { name: "Files", value: project?.files?.length || 0 },
     { name: "Feedback", value: project?.feedback?.length || 0 },
     { name: "Deadlines", value: stats?.upcomingDeadlines?.length || 0 },
   ];
-  
   const COLORS = ["#3b82f6", "#10b981", "#f59e0b"];
-
   if (loading && !project) {
     return (
       <div className="flex h-screen items-center justify-center bg-gray-50">
@@ -38,7 +32,6 @@ const StudentDashboard = () => {
       </div>
     );
   }
-
   return (
     <div className="p-6 md:p-8 bg-[#f8fafc] min-h-screen space-y-8">
       <div className="flex justify-between items-center">
@@ -47,14 +40,17 @@ const StudentDashboard = () => {
           Welcome back, {project?.student?.name || "Student"}
         </div>
       </div>
-
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <StatCard icon={<LayoutTemplate size={20} />} color="blue" label="Status" value={project?.status || "N/A"} />
         <StatCard icon={<FileText size={20} />} color="green" label="Files" value={project?.files?.length || 0} />
         <StatCard icon={<MessageSquare size={20} />} color="orange" label="Feedback" value={project?.feedback?.length || 0} />
-        <StatCard icon={<Clock size={20} />} color="purple" label="Supervisor" value={project?.supervisor?.name || "Pending"} />
+        <StatCard
+          icon={<Clock size={20} />}
+          color="purple"
+          label="Supervisor"
+          value={stats?.supervisorName || "Pending"}
+        />        ${console.log(stats)}
       </div>
-
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-8">
           <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
@@ -73,7 +69,6 @@ const StudentDashboard = () => {
               </ResponsiveContainer>
             </div>
           </div>
-
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
             <div className="p-6 border-b border-gray-50 flex items-center justify-between">
               <h2 className="font-bold text-gray-800 flex items-center gap-2">
@@ -94,7 +89,6 @@ const StudentDashboard = () => {
             </div>
           </div>
         </div>
-
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden h-fit">
           <div className="p-6 border-b border-gray-50">
             <h2 className="font-bold text-gray-800">Quick Request</h2>
@@ -119,7 +113,6 @@ const StudentDashboard = () => {
           </div>
         </div>
       </div>
-
       {selectedTeacher && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
           <div className="bg-white p-6 rounded-2xl max-w-md w-full shadow-2xl">
@@ -140,7 +133,6 @@ const StudentDashboard = () => {
     </div>
   );
 };
-
 const StatCard = ({ icon, color, label, value }) => (
   <div className="bg-white p-6 rounded-2xl border border-gray-100 flex items-center gap-4 shadow-sm">
     <div className={`p-3 bg-${color}-50 text-${color}-600 rounded-xl`}>{icon}</div>
@@ -150,5 +142,4 @@ const StatCard = ({ icon, color, label, value }) => (
     </div>
   </div>
 );
-
 export default StudentDashboard;

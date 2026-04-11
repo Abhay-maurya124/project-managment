@@ -2,20 +2,16 @@ import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getTeacherStats } from "../../store/slices/teacherSlice";
 import { Clock, CheckCircle, Bell } from "lucide-react";
-
 const TeacherDashboard = () => {
   const dispatch = useDispatch();
   const { dashboardStats, loading } = useSelector((state) => state.teacher);
-
   useEffect(() => {
     dispatch(getTeacherStats());
   }, [dispatch]);
-
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
       <h1 className="text-2xl font-bold mb-6 text-gray-800">Teacher Dashboard</h1>
-      
-      {/* Stats Grid */}
+      {}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <div className="bg-white p-6 rounded-xl shadow-sm border-l-4 border-orange-500">
           <div className="flex justify-between items-center">
@@ -26,7 +22,6 @@ const TeacherDashboard = () => {
             <Clock className="text-orange-500" size={40} />
           </div>
         </div>
-
         <div className="bg-white p-6 rounded-xl shadow-sm border-l-4 border-green-500">
           <div className="flex justify-between items-center">
             <div>
@@ -36,7 +31,6 @@ const TeacherDashboard = () => {
             <CheckCircle className="text-green-500" size={40} />
           </div>
         </div>
-
         <div className="bg-white p-6 rounded-xl shadow-sm border-l-4 border-blue-500">
           <div className="flex justify-between items-center">
             <div>
@@ -47,8 +41,7 @@ const TeacherDashboard = () => {
           </div>
         </div>
       </div>
-
-      {/* Notifications Table */}
+      {}
       <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
         <div className="p-4 border-b bg-gray-50 font-bold text-gray-700">Recent Notifications</div>
         <div className="divide-y">
@@ -67,5 +60,4 @@ const TeacherDashboard = () => {
     </div>
   );
 };
-
 export default TeacherDashboard;

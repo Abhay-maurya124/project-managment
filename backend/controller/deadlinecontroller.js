@@ -1,53 +1,1 @@
-import { asynchandler } from "../middleware/asyncHandler.js";
-import { Deadline } from "../models/deadline.js";
-import { User } from "../models/user.js";
-import * as projectServices from "../serrvices/projectServices.js";
-import * as notificationServices from "../serrvices/notificationService.js";
-import * as requestServices from "../serrvices/requestService.js";
-import * as fileServices from "../serrvices/fileServices.js";
-import { Project } from "../models/project.js";
-import { Notification } from "../models/notification.js";
-
-export const createDeadline = asynchandler(async (req, res) => {
-  const { name, dueDate } = req.body;
-  const { id } = req.params;
-  if (!name || !dueDate) {
-    return res.status(400).json({
-      success: false,
-      message: "Name and Duedate is required",
-    });
-  }
-  const project = await projectServices.getProjectById(id);
-  if (!project) {
-    return res.status(404).json({
-      success: false,
-      message: "Project not found",
-    });
-  }
-  const deadLineData = {
-    name,
-    dueDate,
-    createdBy: req.user._id,
-    project: project || null,
-  };
-  const deadline = await Deadline.create(deadLineData);
-  await deadline.populate([
-    { path: "createdBy", select: "name email" },
-    { path: "project", select: "title student" },
-  ]);
-  if (project) {
-    await Project.findByIdAndUpdate(
-      project,
-      { deadline: dueDate },
-      {
-        returnDocument: "after",
-        runValidators: true,
-      },
-    );
-  }
-  return res.status(201).json({
-    success: true,
-    message: "Deadline created Successfully",
-    data: { deadline },
-  });
-});
+import { asynchandler } from "../middleware/asyncHandler.js";import { Deadline } from "../models/deadline.js";import { User } from "../models/user.js";import * as projectServices from "../serrvices/projectServices.js";import * as notificationServices from "../serrvices/notificationService.js";import * as requestServices from "../serrvices/requestService.js";import * as fileServices from "../serrvices/fileServices.js";import { Project } from "../models/project.js";import { Notification } from "../models/notification.js";export const createDeadline = asynchandler(async (req, res) => {  const { name, dueDate } = req.body;  const { id } = req.params;  if (!name || !dueDate) {    return res.status(400).json({      success: false,      message: "Name and Duedate is required",    });  }  const project = await projectServices.getProjectById(id);  if (!project) {    return res.status(404).json({      success: false,      message: "Project not found",    });  }  const deadLineData = {    name,    dueDate,    createdBy: req.user._id,    project: project || null,  };  const deadline = await Deadline.create(deadLineData);  await deadline.populate([    { path: "createdBy", select: "name email" },    { path: "project", select: "title student" },  ]);  if (project) {    await Project.findByIdAndUpdate(      project,      { deadline: dueDate },      {        returnDocument: "after",        runValidators: true,      },    );  }  return res.status(201).json({    success: true,    message: "Deadline created Successfully",    data: { deadline },  });});

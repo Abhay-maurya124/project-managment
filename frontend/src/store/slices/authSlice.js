@@ -1,7 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { axiosInstance } from "../../lib/axios";
 import { toast } from "react-toastify";
-
 export const login = createAsyncThunk("auth/login", async (data, thunkAPI) => {
   try {
     const res = await axiosInstance.post("/user/loginUser", data, {
@@ -17,7 +16,6 @@ export const login = createAsyncThunk("auth/login", async (data, thunkAPI) => {
     return thunkAPI.rejectWithValue(message);
   }
 });
-
 export const logout = createAsyncThunk("auth/logout", async (_, thunkAPI) => {
   try {
     const res = await axiosInstance.post("/user/logout");
@@ -29,7 +27,6 @@ export const logout = createAsyncThunk("auth/logout", async (_, thunkAPI) => {
     return thunkAPI.rejectWithValue(message);
   }
 });
-
 export const resetpassword = createAsyncThunk(
   "auth/resetpassword",
   async (email, thunkAPI) => {
@@ -52,7 +49,6 @@ export const resetpassword = createAsyncThunk(
     }
   },
 );
-
 export const forgetpassword = createAsyncThunk(
   "auth/forgetpassword",
   async ({ token, data }, thunkAPI) => {
@@ -83,7 +79,6 @@ export const checkAuth = createAsyncThunk("auth/check", async (_, thunkAPI) => {
     return thunkAPI.rejectWithValue(null);
   }
 });
-
 const authSlice = createSlice({
   name: "auth",
   initialState: {
@@ -102,7 +97,6 @@ const authSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // Login cases
       .addCase(login.pending, (state) => {
         state.isLoggingIn = true;
       })
@@ -125,15 +119,12 @@ const authSlice = createSlice({
         state.authUser = null;
         state.isCheckingAuth = false;
       })
-      // Logout cases
       .addCase(logout.fulfilled, (state) => {
         state.authUser = null;
       })
       .addCase(logout.rejected, (state) => {
         state.authUser = null;
       })
-
-      // Forget Password cases
       .addCase(forgetpassword.pending, (state) => {
         state.isUpdatingPassword = true;
       })
@@ -143,8 +134,6 @@ const authSlice = createSlice({
       .addCase(forgetpassword.rejected, (state) => {
         state.isUpdatingPassword = false;
       })
-
-      // Reset Password cases
       .addCase(resetpassword.pending, (state) => {
         state.isRequestingForToken = true;
       })
@@ -156,6 +145,5 @@ const authSlice = createSlice({
       });
   },
 });
-
 export const { setAuthUser } = authSlice.actions;
 export default authSlice.reducer;

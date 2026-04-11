@@ -26,9 +26,9 @@ const Navbar = ({ sidebarOpen, setSidebarOpen }) => {
     <nav className="bg-white shadow-sm border-b border-slate-200 fixed w-full top-0 z-30">
       <div className="px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
-          {/* Left side */}
+          {}
           <div className="flex items-center">
-            {/* Sidebar toggle */}
+            {}
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
               className="p-2 rounded-lg text-slate-600 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -56,8 +56,7 @@ const Navbar = ({ sidebarOpen, setSidebarOpen }) => {
                 )}
               </svg>
             </button>
-
-            {/* Logo and title */}
+            {}
             <div className="flex items-center ml-4">
               <div className="shrink-0 flex items-center">
                 <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
@@ -83,10 +82,9 @@ const Navbar = ({ sidebarOpen, setSidebarOpen }) => {
               </div>
             </div>
           </div>
-
-          {/* Right side */}
+          {}
           <div className="flex items-center space-x-4">
-            {/* Profile dropdown */}
+            {}
             <div className="relative">
               <button
                 onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
@@ -119,8 +117,7 @@ const Navbar = ({ sidebarOpen, setSidebarOpen }) => {
                   />
                 </svg>
               </button>
-
-              {/* Profile dropdown menu */}
+              {}
               {profileDropdownOpen && (
                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-slate-200 z-50">
                   <div className="p-2">
@@ -138,7 +135,6 @@ const Navbar = ({ sidebarOpen, setSidebarOpen }) => {
                     <button
                       onClick={handlelogout}
                       className="w-full text-left 
-                      
                       px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md mt-2"
                     >
                       Sign out
@@ -150,8 +146,7 @@ const Navbar = ({ sidebarOpen, setSidebarOpen }) => {
           </div>
         </div>
       </div>
-
-      {/* Click outside handlers */}
+      {}
       {(profileDropdownOpen || notificationsOpen) && (
         <div
           className="fixed inset-0 z-40"
@@ -164,5 +159,4 @@ const Navbar = ({ sidebarOpen, setSidebarOpen }) => {
     </nav>
   );
 };
-
 export default Navbar;

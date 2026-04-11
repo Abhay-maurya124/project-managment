@@ -1,12 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { createStudent, UpdateStudent } from "../../store/slices/adminSlice.js";
-
 const AddStudent = ({ isOpen, onClose, editingStudent }) => {
   const dispatch = useDispatch();
   const [formData, setFormData] = useState({ name: "", email: "", department: "" ,password:""});
-
-  // Sync form data when editingStudent changes
   useEffect(() => {
     if (editingStudent) {
       setFormData({
@@ -19,7 +16,6 @@ const AddStudent = ({ isOpen, onClose, editingStudent }) => {
       setFormData({ name: "", email: "", department: "" });
     }
   }, [editingStudent]);
-
   const handleSubmit = (e) => {
     e.preventDefault();
     if (editingStudent) {
@@ -29,9 +25,7 @@ const AddStudent = ({ isOpen, onClose, editingStudent }) => {
     }
     onClose();
   };
-
   if (!isOpen) return null;
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
       <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden">
@@ -101,5 +95,4 @@ const AddStudent = ({ isOpen, onClose, editingStudent }) => {
     </div>
   );
 };
-
 export default AddStudent;

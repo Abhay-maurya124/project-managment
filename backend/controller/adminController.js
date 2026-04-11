@@ -1,263 +1,1 @@
-import { asynchandler } from "../middleware/asyncHandler.js";
-import { User } from "../models/user.js";
-import * as userServices from "../serrvices/userServices.js";
-import * as notificationServices from "../serrvices/notificationService.js";
-import { Project } from "../models/project.js";
-import { Supervisor } from "../models/supervisorrequest.js";
-
-export const createStudent = asynchandler(async (req, res) => {
-  const { name, password, email, department } = req.body;
-  if (!name) {
-    return res.status(400).json({
-      status: false,
-      message: "Name is required",
-    });
-  }
-  if (!email) {
-    return res.status(400).json({
-      status: false,
-      message: "Email is required",
-    });
-  }
-  if (!password) {
-    return res.status(400).json({
-      status: false,
-      message: "password is required",
-    });
-  }
-  if (!department) {
-    return res.status(400).json({
-      status: false,
-      message: "department is required",
-    });
-  }
-  const studentdata = {
-    name,
-    password,
-    email,
-    department,
-    role: "Student",
-  };
-  const user = await userServices.createUser(studentdata);
-  return res.status(201).json({
-    success: true,
-    message: "Student created successfully",
-    data: { user },
-  });
-});
-export const updateStudent = asynchandler(async (req, res) => {
-  const { id } = req.params;
-  const updateData = { ...req.body };
-  delete updateData.role;
-
-  const user = await userServices.updateStudentData(id, updateData);
-  if (!user) {
-    return res.status(404).json({
-      success: false,
-      message: "Student not found",
-    });
-  }
-  return res.status(200).json({
-    success: true,
-    message: "Student updatend successfully",
-    data: { user },
-  });
-});
-export const deleteStudent = asynchandler(async (req, res) => {
-  const { id } = req.params;
-  const user = await userServices.getUserById(id);
-  if (!user) {
-    return res.status(404).json({
-      success: false,
-      message: "Student not found",
-    });
-  }
-  if (user.role !== "Student") {
-    return res.status(400).json({
-      success: false,
-      message: "User is not a Student",
-    });
-  }
-  await userServices.deleteUser(id);
-  res.status(200).json({
-    success: false,
-    message: "Student delete Succesfully",
-  });
-});
-export const createTeacher = asynchandler(async (req, res) => {
-  const { name, password, email, department, experties, maxStudents } =
-    req.body;
-  if (
-    !name ||
-    !password ||
-    !email ||
-    !department ||
-    !experties ||
-    !maxStudents
-  ) {
-    return res.status(400).json({
-      status: false,
-      message: "Credientials not found name, password, email or department",
-    });
-  }
-  const Teacherdata = {
-    name,
-    password,
-    email,
-    department,
-    experties: Array.isArray(experties)
-      ? experties
-      : typeof experties === "string" && experties.trim() !== ""
-        ? experties.split(",").map((s) => s.trim())
-        : [],
-    maxStudents,
-    role: "Teacher",
-  };
-  const user = await userServices.createUser(Teacherdata);
-  return res.status(201).json({
-    success: true,
-    message: "Teacher created successfully",
-    data: { user },
-  });
-});
-export const updateTeacher = asynchandler(async (req, res) => {
-  const { id } = req.params;
-  const updateData = { ...req.body };
-  delete updateData.role;
-
-  const user = await userServices.updateTeacherData(id, updateData);
-  if (!user) {
-    return res.status(404).json({
-      success: false,
-      message: "Teacher not found",
-    });
-  }
-  return res.status(200).json({
-    success: true,
-    message: "Teacher updatend successfully",
-    data: { user },
-  });
-});
-export const deleteTeacher = asynchandler(async (req, res) => {
-  const { id } = req.params;
-  const user = await userServices.getUserById(id);
-  if (!user) {
-    return res.status(404).json({
-      success: false,
-      message: "Teacher not found",
-    });
-  }
-  if (user.role !== "Teacher") {
-    return res.status(400).json({
-      success: false,
-      message: "User is not a Teacher",
-    });
-  }
-  await userServices.deleteUser(id);
-  res.status(200).json({
-    success: true,
-    message: "Teacher delete Succesfully",
-  });
-});
-export const allUser = asynchandler(async (req, res) => {
-  const query = { role: { $ne: "Admin" } };
-  const Alluser = await User.find(query)
-    .select("-password -resetpasswordToken -resetPasswordExpires")
-    .sort({ createdAt: -1 });
-  return res.status(200).json({
-    success: true,
-    message: "User Fetch successfull",
-    Alluser,
-  });
-});
-export const getAdminDashboardStats = asynchandler(async (req, res) => {
-  const [
-    totalStudents,
-    totalTeachers,
-    totalProjects,
-    pendingRequests,
-    completeProjects,
-    pendingProjects,
-  ] = await Promise.all([
-    User.countDocuments({ role: "Student" }),
-    User.countDocuments({ role: "Teacher" }),
-    Project.countDocuments(),
-    Project.countDocuments({ status: "completed" }),
-    Supervisor.countDocuments({ status: "pending" }),
-  ]);
-
-  res.status(200).json({
-    success: true,
-    message: "Admin dashboard stats fetched",
-    data: {
-      stats: {
-        totalStudents,
-        totalTeachers,
-        totalProjects,
-        pendingRequests,
-        completeProjects,
-        pendingProjects,
-      },
-    },
-  });
-});
-export const assignSupervisor = asynchandler(async (req, res) => {
-  const { studentId, supervisorId } = req.body;
-  if (!studentId || !supervisorId) {
-    return res.status(400).json({
-      success: false,
-      message: "SupervisorId or StudentId is required",
-    });
-  }
-
-  const project = await Project.findOne({ student: studentId });
-  if (!project) {
-    return res.status(400).json({
-      success: false, 
-      message: "Project not found",
-    });
-  }
-  if (project.supervisor !== null) {
-    return res.status(400).json({
-      success: false,
-      message: "Supervisor already assigned",
-    });
-  }
-  if (project.status !== "approved") {
-    return res.status(400).json({
-      success: false,
-      message: "Project is not approved yet",
-    });
-  } else if (project.status !== "pending" || project.status !== "rejected") {
-    return res.status(400).json({
-      success: false,
-      message: "Project is in pending or rejected ",
-    });
-  }
-
-  const { student, supervisor } = await userServices.assignSupervisorDirectly(
-    studentId,
-    supervisorId,
-  );
-  project.supervisor = supervisor;
-  await project.save();
-  await notificationServices.notifyUser(
-    studentId,
-    `you have been assigned a supervisor ${supervisor.name}`,
-    "approval",
-    "/students/status",
-    "low",
-  );
-  await notificationServices.notifyUser(
-    supervisorId,
-    `The student ${student.name} has been assigned to you for Project supervison`,
-    "general",
-    "/students/status",
-    "low",
-  );
-  return res.status(200).json({
-    success: true,
-    message: "Student Assignment",
-    data: { student, supervisor },
-  });
-});
+import { asynchandler } from "../middleware/asyncHandler.js";import { User } from "../models/user.js";import * as userServices from "../serrvices/userServices.js";import * as notificationServices from "../serrvices/notificationService.js";import { Project } from "../models/project.js";import { Supervisor } from "../models/supervisorrequest.js";export const createStudent = asynchandler(async (req, res) => {  const { name, password, email, department } = req.body;  if (!name) {    return res.status(400).json({      status: false,      message: "Name is required",    });  }  if (!email) {    return res.status(400).json({      status: false,      message: "Email is required",    });  }  if (!password) {    return res.status(400).json({      status: false,      message: "password is required",    });  }  if (!department) {    return res.status(400).json({      status: false,      message: "department is required",    });  }  const studentdata = {    name,    password,    email,    department,    role: "Student",  };  const user = await userServices.createUser(studentdata);  return res.status(201).json({    success: true,    message: "Student created successfully",    data: { user },  });});export const updateStudent = asynchandler(async (req, res) => {  const { id } = req.params;  const updateData = { ...req.body };  delete updateData.role;  const user = await userServices.updateStudentData(id, updateData);  if (!user) {    return res.status(404).json({      success: false,      message: "Student not found",    });  }  return res.status(200).json({    success: true,    message: "Student updatend successfully",    data: { user },  });});export const deleteStudent = asynchandler(async (req, res) => {  const { id } = req.params;  const user = await userServices.getUserById(id);  if (!user) {    return res.status(404).json({      success: false,      message: "Student not found",    });  }  if (user.role !== "Student") {    return res.status(400).json({      success: false,      message: "User is not a Student",    });  }  await userServices.deleteUser(id);  res.status(200).json({    success: false,    message: "Student delete Succesfully",  });});export const createTeacher = asynchandler(async (req, res) => {  const { name, password, email, department, experties, maxStudents } =    req.body;  if (    !name ||    !password ||    !email ||    !department ||    !experties ||    !maxStudents  ) {    return res.status(400).json({      status: false,      message: "Credientials not found name, password, email or department",    });  }  const Teacherdata = {    name,    password,    email,    department,    experties: Array.isArray(experties)      ? experties      : typeof experties === "string" && experties.trim() !== ""        ? experties.split(",").map((s) => s.trim())        : [],    maxStudents,    role: "Teacher",  };  const user = await userServices.createUser(Teacherdata);  return res.status(201).json({    success: true,    message: "Teacher created successfully",    data: { user },  });});export const updateTeacher = asynchandler(async (req, res) => {  const { id } = req.params;  const updateData = { ...req.body };  delete updateData.role;  const user = await userServices.updateTeacherData(id, updateData);  if (!user) {    return res.status(404).json({      success: false,      message: "Teacher not found",    });  }  return res.status(200).json({    success: true,    message: "Teacher updatend successfully",    data: { user },  });});export const deleteTeacher = asynchandler(async (req, res) => {  const { id } = req.params;  const user = await userServices.getUserById(id);  if (!user) {    return res.status(404).json({      success: false,      message: "Teacher not found",    });  }  if (user.role !== "Teacher") {    return res.status(400).json({      success: false,      message: "User is not a Teacher",    });  }  await userServices.deleteUser(id);  res.status(200).json({    success: true,    message: "Teacher delete Succesfully",  });});export const allUser = asynchandler(async (req, res) => {  const query = { role: { $ne: "Admin" } };  const Alluser = await User.find(query)  .populate("superVisor", "name")     .select("-password -resetpasswordToken -resetPasswordExpires")    .sort({ createdAt: -1 });  return res.status(200).json({    success: true,    message: "User Fetch successfull",    Alluser,  });});export const getAdminDashboardStats = asynchandler(async (req, res) => {  const [    totalStudents,    totalTeachers,    totalProjects,    pendingRequests,    completeProjects,    pendingProjects,    allProjects  ] = await Promise.all([    User.countDocuments({ role: "Student" }),    User.countDocuments({ role: "Teacher" }),    Project.countDocuments(),    Project.countDocuments({ status: "completed" }),    Supervisor.countDocuments({ status: "pending" }),    Project.find()      .populate("supervisor", "name").populate({        path: "student",        select: "name",        populate: { path: "superVisor", select: "name" }       })  ]);  res.status(200).json({    success: true,    message: "Admin dashboard stats fetched",    data: {      stats: {        totalStudents,        totalTeachers,        totalProjects,        pendingRequests,        completeProjects,        pendingProjects,      },      projects: allProjects,    },  });});export const assignSupervisor = asynchandler(async (req, res) => {  const { studentId, supervisorId } = req.body;  if (!studentId || !supervisorId) {    return res.status(400).json({      success: false,      message: "SupervisorId or StudentId is required",    });  }  const project = await Project.findOne({ student: studentId });  if (!project) {    return res.status(400).json({      success: false,      message: "Project not found",    });  }  if (project.supervisor !== null) {    return res.status(400).json({      success: false,      message: "Supervisor already assigned",    });  }  if (project.status !== "approved") {    return res.status(400).json({      success: false,      message: "Project is not approved yet",    });  }  if (project.status !== "approved") {    return res.status(400).json({      success: false,      message: `Cannot assign supervisor. Project status is currently: ${project.status}`,    });  }  const { student, supervisor } = await userServices.assignSupervisorDirectly(    studentId,    supervisorId,  );  project.supervisor = supervisor;  await project.save();  await notificationServices.notifyUser(    studentId,    `you have been assigned a supervisor ${supervisor.name}`,    "approval",    "/students/status",    "low",  );  await notificationServices.notifyUser(    supervisorId,    `The student ${student.name} has been assigned to you for Project supervison`,    "general",    "/students/status",    "low",  );  return res.status(200).json({    success: true,    message: "Student Assignment",    data: { student, supervisor },  });});export const allProjects = asynchandler(async (req, res) => {  const projects = await Project.find()    .populate("student", "name email")    .populate("supervisor", "name email")    .sort({ createdAt: -1 });  return res.status(200).json({    success: true,    projects,  });});// Approve a projectexport const approveProject = asynchandler(async (req, res) => {  const { id } = req.params;  const project = await Project.findByIdAndUpdate(    id,    { status: "approved" },    { new: true },  ).populate("student", "name email");  if (!project) {    return res      .status(404)      .json({ success: false, message: "Project not found" });  }  await notificationServices.notifyUser(    project.student._id,    "Your project proposal has been approved!",    "approval",    "/students/status",    "medium",  );  return res.status(200).json({    success: true,    message: "Project approved successfully",    project,  });});

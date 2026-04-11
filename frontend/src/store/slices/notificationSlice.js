@@ -1,7 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { axiosInstance } from "../../lib/axios";
 import { toast } from "react-toastify";
-
 // Fetch all notifications with stats
 export const fetchNotifications = createAsyncThunk(
   "notification/fetchAll",
@@ -14,7 +13,6 @@ export const fetchNotifications = createAsyncThunk(
     }
   }
 );
-
 // Mark single as read
 export const markAsRead = createAsyncThunk(
   "notification/markRead",
@@ -27,7 +25,6 @@ export const markAsRead = createAsyncThunk(
     }
   }
 );
-
 // Delete notification
 export const deleteNotificationAction = createAsyncThunk(
   "notification/delete",
@@ -40,7 +37,6 @@ export const deleteNotificationAction = createAsyncThunk(
     }
   }
 );
-
 const notificationSlice = createSlice({
   name: "notification",
   initialState: {
@@ -87,5 +83,4 @@ const notificationSlice = createSlice({
       );
   },
 });
-
 export default notificationSlice.reducer;

@@ -1,26 +1,22 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { createTeacher, UpdateTeacher } from "../../store/slices/adminSlice.js";
-
 const AddTeacher = ({ isOpen, onClose, editingTeacher }) => {
   const dispatch = useDispatch();
-  
-  // 1. Ensure state matches ALL backend requirements
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
     department: "",
-    experties: "", // String here, Backend will split it
+    experties: "",
     maxStudents: 5,
   });
-
   useEffect(() => {
     if (editingTeacher) {
       setFormData({
         name: editingTeacher.name || "",
         email: editingTeacher.email || "",
-        password: "", // Keep empty for security during updates
+        password: "",
         department: editingTeacher.department || "",
         experties: Array.isArray(editingTeacher.experties) 
           ? editingTeacher.experties.join(", ") 
@@ -31,7 +27,6 @@ const AddTeacher = ({ isOpen, onClose, editingTeacher }) => {
       setFormData({ name: "", email: "", password: "", department: "", experties: "", maxStudents: 5 });
     }
   }, [editingTeacher, isOpen]);
-
   const handleSubmit = (e) => {
     e.preventDefault();
     if (editingTeacher) {
@@ -41,9 +36,7 @@ const AddTeacher = ({ isOpen, onClose, editingTeacher }) => {
     }
     onClose();
   };
-
   if (!isOpen) return null;
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
       <div className="bg-white w-full max-w-lg rounded-2xl shadow-xl overflow-hidden animate-in fade-in zoom-in duration-200">
@@ -53,9 +46,8 @@ const AddTeacher = ({ isOpen, onClose, editingTeacher }) => {
             {editingTeacher ? "Edit Teacher Profile" : "Register New Teacher"}
           </h2>
         </div>
-        
         <form onSubmit={handleSubmit} className="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
-          {/* Field Group 1: Basic Info */}
+          {}
           <div className="space-y-3">
             <div>
               <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Full Name</label>
@@ -89,10 +81,8 @@ const AddTeacher = ({ isOpen, onClose, editingTeacher }) => {
               </div>
             )}
           </div>
-
           <hr className="border-gray-100" />
-
-          {/* Field Group 2: Professional Info */}
+          {}
           <div className="grid grid-cols-2 gap-4">
             <div className="col-span-2">
               <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Department</label>
@@ -123,7 +113,6 @@ const AddTeacher = ({ isOpen, onClose, editingTeacher }) => {
               />
             </div>
           </div>
-
           <div className="flex gap-3 pt-4">
             <button type="button" onClick={onClose} className="flex-1 py-2.5 text-gray-500 font-semibold hover:bg-gray-50 rounded-xl transition-colors">
               Cancel
@@ -137,5 +126,4 @@ const AddTeacher = ({ isOpen, onClose, editingTeacher }) => {
     </div>
   );
 };
-
 export default AddTeacher;

@@ -1,12 +1,1 @@
-import mongoose from "mongoose";
-
-export const connectDB = (req, res) => {
-  mongoose
-    .connect(process.env.MONGO_URI)
-    .then(() => {
-      console.log("connected to database");
-    })
-    .catch((err) => {
-      console.log("Database Connection failed", err);
-    });
-};
+import mongoose from "mongoose";export const connectDB = (req, res) => {  mongoose    .connect(process.env.MONGO_URI)    .then(() => {      console.log("connected to database");    })    .catch((err) => {      console.log("Database Connection failed", err);    });};

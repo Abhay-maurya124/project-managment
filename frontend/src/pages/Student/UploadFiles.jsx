@@ -4,41 +4,32 @@ import { uploadProjectFiles } from "../../store/slices/studentSlice";
 import { Upload, File, X, Check, Download, Loader2 } from "lucide-react";
 import { axiosInstance } from "../../lib/axios";
 import { toast } from "react-toastify";
-
 const UploadFiles = () => {
   const dispatch = useDispatch();
   const fileInputRef = useRef();
   const { project, loading } = useSelector((state) => state.student);
   const [selectedFiles, setSelectedFiles] = useState([]);
-
   const handleFileChange = (e) => {
     setSelectedFiles([...e.target.files]);
   };
-
   const handleUpload = () => {
     if (!project?._id) {
       toast.error("No active project found to upload files.");
       return;
     }
-
-    // Creating FormData is essential for file uploads in MERN
     const formData = new FormData();
     selectedFiles.forEach((file) => {
       formData.append("files", file); 
     });
-
     dispatch(uploadProjectFiles({ projectId: project._id, formData }));
     setSelectedFiles([]);
   };
-
   const handleDownload = async (fileId, fileName) => {
     try {
       const response = await axiosInstance.get(
         `/student/download/${project._id}/${fileId}`,
-        { responseType: "blob" } // Important for binary data
+        { responseType: "blob" }
       );
-
-      // Create a temporary link to trigger the download
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement("a");
       link.href = url;
@@ -50,13 +41,11 @@ const UploadFiles = () => {
       toast.error("Failed to download file");
     }
   };
-
   return (
     <div className="p-6 md:p-10 max-w-3xl mx-auto min-h-screen">
       <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
         <h2 className="text-2xl font-bold text-gray-800 mb-6">Project Materials</h2>
-        
-        {/* Dropzone */}
+        {}
         <div 
           onClick={() => fileInputRef.current.click()}
           className="border-2 border-dashed border-gray-200 rounded-2xl p-10 text-center cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition-all mb-6"
@@ -66,8 +55,7 @@ const UploadFiles = () => {
           <p className="text-xs text-gray-400 mt-2">Max 10 files per upload</p>
           <input type="file" multiple hidden ref={fileInputRef} onChange={handleFileChange} />
         </div>
-
-        {/* Selected Files Preview */}
+        {}
         {selectedFiles.length > 0 && (
           <div className="space-y-3 mb-8">
             <p className="text-sm font-bold text-gray-500 uppercase tracking-wider">Ready to upload:</p>
@@ -92,8 +80,7 @@ const UploadFiles = () => {
             </button>
           </div>
         )}
-
-        {/* Previous Uploads with Download Action */}
+        {}
         <h3 className="text-lg font-bold text-gray-800 mb-4">Project Archive</h3>
         <div className="grid grid-cols-1 gap-3">
           {project?.files?.length > 0 ? (
@@ -125,5 +112,4 @@ const UploadFiles = () => {
     </div>
   );
 };
-
 export default UploadFiles;

@@ -3,21 +3,16 @@ import { useNavigate, Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { LogIn, Mail, Lock, UserCircle, Loader2 } from "lucide-react";
 import { login } from "../../store/slices/authSlice";
-
 const LoginPage = () => { 
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { authUser, isLoggingIn } = useSelector((state) => state.auth);
-
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-    role: "Student", // Match the case of your dropdown values
+    role: "Student",
   });
-
   const [errors, setErrors] = useState({});
-
-  // FIXED: Standardized to lowercase paths to match App.jsx routes
   useEffect(() => {
     if (authUser) {
       const role = authUser.role;
@@ -26,7 +21,6 @@ const LoginPage = () => {
       else navigate("/student");
     }
   }, [authUser, navigate]);
-
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -34,33 +28,27 @@ const LoginPage = () => {
       setErrors((prev) => ({ ...prev, [name]: "" }));
     }
   };
-
   const validateForm = () => {
     const newErrors = {};
     const emailRegex = /\S+@\S+\.\S+/;
-
     if (!formData.email) {
       newErrors.email = "Email is required";
     } else if (!emailRegex.test(formData.email)) {
       newErrors.email = "Invalid email format";
     }
-
     if (!formData.password) {
       newErrors.password = "Password is required";
     } else if (formData.password.length < 8) {
       newErrors.password = "Password must be at least 8 characters";
     }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
     dispatch(login(formData));
   };
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <div className="max-w-md w-full bg-white rounded-xl shadow-lg p-8">
@@ -70,7 +58,6 @@ const LoginPage = () => {
           </div>
           <h2 className="text-3xl font-bold text-gray-900 text-center">Login</h2>
         </div>
-
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Select Role</label>
@@ -88,7 +75,6 @@ const LoginPage = () => {
               </select>
             </div>
           </div>
-
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
             <div className="relative">
@@ -104,7 +90,6 @@ const LoginPage = () => {
             </div>
             {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
           </div>
-
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
             <div className="relative">
@@ -120,13 +105,11 @@ const LoginPage = () => {
             </div>
             {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
           </div>
-
           <div className="flex justify-end">
             <Link to="/forgot-password" state={{ role: formData.role }} className="text-sm text-blue-600 hover:underline">
               Forgot Password?
             </Link>
           </div>
-
           <button
             type="submit"
             disabled={isLoggingIn}
@@ -146,5 +129,4 @@ const LoginPage = () => {
     </div>
   );
 };
-
 export default LoginPage;

@@ -1,89 +1,1 @@
-import mongoose from "mongoose";
-
-const projectSchema = new mongoose.Schema(
-  {
-    student: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: [true, "student Id is required"],
-    },
-    supervisor: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      default: null,
-    },
-    title: {
-      type: String,
-      required: [true, "Project title is required"],
-      trim: true,
-      default: null,
-      maxlength: [200, "Title cannot be more then 200 charector"],
-    },
-    description: {
-      type: String,
-      required: [true, "Project description is required"],
-      trim: true,
-      default: null,
-      maxlength: [200, "description cannot be more then 200 charector"],
-    },
-    status: {
-      type: String,
-      default: "pending",
-      enum: ["pending", "approved", "rejected", "completed"],
-    },
-    files: [
-      {
-        fileType: {
-          type: String,
-          required: true,
-        },
-        fileUrl: {
-          type: String,
-          required: true,
-        },
-        originalName: {
-          type: String,
-          required: true,
-        },
-        uploadedAt: {
-          type: Date,
-          default: Date.now,
-        },
-      },
-    ],
-    feedback: [
-      {
-        supervisor: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "User",
-          required: true,
-        },
-        type: {
-          type: String,
-          enum: ["positive", "negative", "general"],
-          default: "general",
-        },
-        message: {
-          type: String,
-          required: true,
-          maxlength: [200, "message cannot be more then 200 charector"],
-        },
-      },
-    ],
-    deadline: {
-      type: Date,
-    },
-  },
-  {
-    timestamps: true,
-  },
-);
-
-// indexing for project setting
-
-projectSchema.index({ student: 1 });
-projectSchema.index({ supervisor: 1 });
-projectSchema.index({ status: 1 });
-
-export const Project =
-  mongoose.models.Project || mongoose.model("Project", projectSchema);
+import mongoose from "mongoose";const projectSchema = new mongoose.Schema(  {    student: {      type: mongoose.Schema.Types.ObjectId,      ref: "User",      required: [true, "student Id is required"],    },    supervisor: {      type: mongoose.Schema.Types.ObjectId,      ref: "User",      default: null,    },    title: {      type: String,      required: [true, "Project title is required"],      trim: true,      default: null,      maxlength: [200, "Title cannot be more then 200 charector"],    },    description: {      type: String,      required: [true, "Project description is required"],      trim: true,      default: null,      maxlength: [200, "description cannot be more then 200 charector"],    },    status: {      type: String,      default: "pending",      enum: ["pending", "approved", "rejected", "completed"],    },    files: [      {        fileType: {          type: String,          required: true,        },        fileUrl: {          type: String,          required: true,        },        originalName: {          type: String,          required: true,        },        uploadedAt: {          type: Date,          default: Date.now,        },      },    ],    feedback: [      {        supervisor: {          type: mongoose.Schema.Types.ObjectId,          ref: "User",          required: true,        },        type: {          type: String,          enum: ["positive", "negative", "general"],          default: "general",        },        message: {          type: String,          required: true,          maxlength: [200, "message cannot be more then 200 charector"],        },      },    ],    deadline: {      type: Date,    },  },  {    timestamps: true,  },);// indexing for project settingprojectSchema.index({ student: 1 });projectSchema.index({ supervisor: 1 });projectSchema.index({ status: 1 });export const Project =  mongoose.models.Project || mongoose.model("Project", projectSchema);

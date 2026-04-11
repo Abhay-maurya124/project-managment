@@ -1,92 +1,1 @@
-import { asynchandler } from "../middleware/asyncHandler.js";
-import * as notificationServices from "../serrvices/notificationService.js";
-import { Notification } from "../models/notification.js";
-
-export const getNotifications = asynchandler(async (req, res) => {
-  const userId = req.user._id;
-  const role = req.user.role;
-  let query = {};
-  if (role === "Admin") {
-    query.type = { $in: ["request"] };
-  } else {
-    query.user = userId;
-  }
-  const notification = await Notification.find(query).sort({ createdAt: -1 });
-  const unreadOnly = notification.filter((n) => !n.isRead);
-  const readOnly = notification.filter((n) => !n.isRead);
-  const highPriorityMessages = notification.filter(
-    (n) => !n.priority === "high",
-  );
-
-  const now = new Date();
-  const dayOfweek = now.getDay();
-  const startofWeek = new Date(now);
-  startofWeek.setDate(now.getDate() - dayOfweek);
-  startofWeek.setHours(0, 0, 0, 0);
-
-  const endofWeek = new Date(startofWeek);
-  endofWeek.setDate(startofWeek.getDate() + 6);
-  endofWeek.setHours(23, 59, 59, 999);
-
-  const thisWeekNotifications = notification.filter((n) => {
-    const created = new Date(n.createdAt);
-    return created >= startofWeek && created <= endofWeek;
-  });
-
-  res.status(200).json({
-    success: true,
-    message: "Notification fetch successfully",
-    data: {
-      notification,
-      unreadOnly: unreadOnly.length,
-      readOnly: readOnly.length,
-      highPriorityMessages: highPriorityMessages.length,
-      thisWeekNotifications: thisWeekNotifications.length,
-    },
-  });
-});
-
-export const markAsReadmsg = asynchandler(async (req, res) => {
-  const { id } = req.params;
-  const userId = req.user._id;
-  const notification = await notificationServices.markAsRead(id, userId);
-  if (!notification) {
-    return res.status(400).json({
-      success: false,
-      message: "Notification not found",
-    });
-  }
-  return res.status(200).json({
-    success: true,
-    message: "Notification marked as read",
-    data: { notification },
-  });
-});
-
-export const markAllReadmsg = asynchandler(async (req, res) => {
-  const userId = req.user._id;
-  await notificationServices.markAllAsRead(userId);
-  return res.status(200).json({
-    success: true,
-    message: "All Notification marked as read",
-  });
-});
-export const deleteNotification = asynchandler(async (req, res) => {
-  const { id } = req.params;
-  const userId = req.user._id;
-  const notification = await notificationServices.deleteNotification(
-    id,
-    userId,
-  );
-  if (!notification) {
-    return res.status(400).json({
-      success: false,
-      message: "Notification not found",
-    });
-  }
-
-  return res.status(200).json({
-    success: true,
-    message: " Notification deleted successfully",
-  });
-});
+import { asynchandler } from "../middleware/asyncHandler.js";import * as notificationServices from "../serrvices/notificationService.js";import { Notification } from "../models/notification.js";export const getNotifications = asynchandler(async (req, res) => {  const userId = req.user._id;  const role = req.user.role;  let query = {};  if (role === "Admin") {    query.type = { $in: ["request"] };  } else {    query.user = userId;  }  const notification = await Notification.find(query).sort({ createdAt: -1 });  const unreadOnly = notification.filter((n) => !n.isRead);  const readOnly = notification.filter((n) => !n.isRead);  const highPriorityMessages = notification.filter(    (n) => !n.priority === "high",  );  const now = new Date();  const dayOfweek = now.getDay();  const startofWeek = new Date(now);  startofWeek.setDate(now.getDate() - dayOfweek);  startofWeek.setHours(0, 0, 0, 0);  const endofWeek = new Date(startofWeek);  endofWeek.setDate(startofWeek.getDate() + 6);  endofWeek.setHours(23, 59, 59, 999);  const thisWeekNotifications = notification.filter((n) => {    const created = new Date(n.createdAt);    return created >= startofWeek && created <= endofWeek;  });  res.status(200).json({    success: true,    message: "Notification fetch successfully",    data: {      notification,      unreadOnly: unreadOnly.length,      readOnly: readOnly.length,      highPriorityMessages: highPriorityMessages.length,      thisWeekNotifications: thisWeekNotifications.length,    },  });});export const markAsReadmsg = asynchandler(async (req, res) => {  const { id } = req.params;  const userId = req.user._id;  const notification = await notificationServices.markAsRead(id, userId);  if (!notification) {    return res.status(400).json({      success: false,      message: "Notification not found",    });  }  return res.status(200).json({    success: true,    message: "Notification marked as read",    data: { notification },  });});export const markAllReadmsg = asynchandler(async (req, res) => {  const userId = req.user._id;  await notificationServices.markAllAsRead(userId);  return res.status(200).json({    success: true,    message: "All Notification marked as read",  });});export const deleteNotification = asynchandler(async (req, res) => {  const { id } = req.params;  const userId = req.user._id;  const notification = await notificationServices.deleteNotification(    id,    userId,  );  if (!notification) {    return res.status(400).json({      success: false,      message: "Notification not found",    });  }  return res.status(200).json({    success: true,    message: " Notification deleted successfully",  });});

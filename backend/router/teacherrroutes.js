@@ -1,10 +1,1 @@
-import express from "express";
-import { authHandler, isAuthorised } from "../middleware/authHandler.js";
-import { getTeacherDashBoardStats } from "../controller/teachercontroller.js";
-export const Teacherrouter = express.Router();
-Teacherrouter.get(
-  "/getDashboardStats",
-  authHandler,
-  isAuthorised("Teacher"),
-  getTeacherDashBoardStats,
-);
+import express from "express";import { authHandler, isAuthorised } from "../middleware/authHandler.js";import {  accceptRequest,  getRequests,  getTeacherDashBoardStats,  rejectRequests,  getAssignedStudents,  getTeacherFiles,  downloadTeacherFile,} from "../controller/teachercontroller.js";export const Teacherrouter = express.Router();Teacherrouter.get(  "/getDashboardStats",  authHandler,  isAuthorised("Teacher"),  getTeacherDashBoardStats,);Teacherrouter.get(  "/requests",  authHandler,  isAuthorised("Teacher"),  getRequests,);Teacherrouter.put(  "/request/:requestId/accept",  authHandler,  isAuthorised("Teacher"),  accceptRequest,);Teacherrouter.put(  "/request/:requestId/reject",  authHandler,  isAuthorised("Teacher"),  rejectRequests,);Teacherrouter.get(  "/assigned-students",  authHandler,  isAuthorised("Teacher"),  getAssignedStudents,);Teacherrouter.get(  "/files",  authHandler,  isAuthorised("Teacher"),  getTeacherFiles,);Teacherrouter.get(  "/download/:projectId/:fileId",  authHandler,  isAuthorised("Teacher"),  downloadTeacherFile,);

@@ -1,21 +1,24 @@
 import { useEffect, useState, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getAlluser, assignSupervisorAction } from "../../store/slices/adminSlice";
+import { getAlluser, getAllProjects, assignSupervisorAction } from "../../store/slices/adminSlice";
 import { UserCheck, GraduationCap, Users, Send } from "lucide-react";
-
 const AssignSupervisor = () => {
   const dispatch = useDispatch();
-  const { Alluser, loading } = useSelector((state) => state.admin);
+  const { Alluser, allProjects, loading } = useSelector((state) => state.admin);
   const [formData, setFormData] = useState({ studentId: "", supervisorId: "" });
-
   useEffect(() => {
     dispatch(getAlluser());
+    dispatch(getAllProjects());
   }, [dispatch]);
-
-  // Memoize lists to avoid unnecessary re-renders
-  const students = useMemo(() => Alluser.filter(u => u.role === "Student"), [Alluser]);
-  const teachers = useMemo(() => Alluser.filter(u => u.role === "Teacher"), [Alluser]);
-
+  const students = useMemo(() => {
+    return Alluser.filter(u => {
+      const userProject = allProjects.find(p => p.student?._id === u._id);
+      return u.role === "Student" && userProject?.status === "approved";
+    });
+  }, [Alluser, allProjects]);
+  const teachers = useMemo(() => 
+    Alluser.filter(u => u.role === "Teacher"), 
+  [Alluser]);
   const handleSubmit = (e) => {
     e.preventDefault();
     dispatch(assignSupervisorAction(formData)).then((res) => {
@@ -24,7 +27,6 @@ const AssignSupervisor = () => {
       }
     });
   };
-
   return (
     <div className="p-6 min-h-screen bg-gray-50">
       <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
@@ -37,7 +39,6 @@ const AssignSupervisor = () => {
             </div>
           </div>
         </div>
-
         <form onSubmit={handleSubmit} className="p-8 space-y-6">
           <div className="space-y-2">
             <label className="text-sm font-bold text-gray-700 flex items-center gap-2">
@@ -55,7 +56,6 @@ const AssignSupervisor = () => {
               ))}
             </select>
           </div>
-
           <div className="space-y-2">
             <label className="text-sm font-bold text-gray-700 flex items-center gap-2">
               <Users size={16} /> Select Teacher
@@ -72,7 +72,6 @@ const AssignSupervisor = () => {
               ))}
             </select>
           </div>
-
           <button
             type="submit"
             disabled={loading}
@@ -85,5 +84,4 @@ const AssignSupervisor = () => {
     </div>
   );
 };
-
 export default AssignSupervisor;
