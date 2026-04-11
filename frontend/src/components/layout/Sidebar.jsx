@@ -348,16 +348,6 @@ const Sidebar = ({ open, setOpen, userRole }) => {
           </div>
         </div>
       </div>
-      {}
-      {}
-      {}
-      {}
-      {}
-      {}
-      {}
-      {}
-      {}
-      {}
       {open && (
         <div
           className="fixed inset-0 bg-black bg-opacity-40 z-40 lg:hidden"
