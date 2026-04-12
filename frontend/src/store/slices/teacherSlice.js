@@ -34,7 +34,7 @@ export const acceptStudentRequest = createAsyncThunk(
   "teacher/acceptRequest",
   async (requestId, thunkAPI) => {
     try {
-      const res = await axiosInstance.put(`/teacher/request/${requestId}/accept`);
+      await axiosInstance.put(`/teacher/request/${requestId}/accept`);
       toast.success("Request accepted successfully");
       return requestId; 
     } catch (error) {
@@ -49,7 +49,7 @@ export const rejectStudentRequest = createAsyncThunk(
   "teacher/rejectRequest",
   async (requestId, thunkAPI) => {
     try {
-      const res = await axiosInstance.put(`/teacher/request/${requestId}/reject`);
+      await axiosInstance.put(`/teacher/request/${requestId}/reject`);
       toast.info("Request rejected");
       return requestId;
     } catch (error) {

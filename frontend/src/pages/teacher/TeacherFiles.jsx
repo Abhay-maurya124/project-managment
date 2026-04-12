@@ -33,7 +33,7 @@ const TeacherFiles = () => {
       document.body.appendChild(link);
       link.click();
       link.remove();
-    } catch (error) {
+    } catch {
       toast.error("Failed to download file");
     }
   };

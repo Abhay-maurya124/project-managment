@@ -1,6 +1,4 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { axiosInstance } from "../../lib/axios";
-import { toast } from "react-toastify";
+import { createSlice } from "@reduxjs/toolkit";
 const requestSlice = createSlice({
   name: "request",
   initialState: {
@@ -8,6 +6,5 @@ const requestSlice = createSlice({
     selected: null,
   },
   reducers: {},
-  extraReducers: (builder) => {},
 });
 export default requestSlice.reducer;

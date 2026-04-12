@@ -13,18 +13,22 @@ const AddTeacher = ({ isOpen, onClose, editingTeacher }) => {
   });
   useEffect(() => {
     if (editingTeacher) {
-      setFormData({
-        name: editingTeacher.name || "",
-        email: editingTeacher.email || "",
-        password: "",
-        department: editingTeacher.department || "",
-        experties: Array.isArray(editingTeacher.experties) 
-          ? editingTeacher.experties.join(", ") 
-          : editingTeacher.experties || "",
-        maxStudents: editingTeacher.maxStudents || 5,
-      });
+      setTimeout(() => {
+        setFormData({
+          name: editingTeacher.name || "",
+          email: editingTeacher.email || "",
+          password: "",
+          department: editingTeacher.department || "",
+          experties: Array.isArray(editingTeacher.experties) 
+            ? editingTeacher.experties.join(", ") 
+            : editingTeacher.experties || "",
+          maxStudents: editingTeacher.maxStudents || 5,
+        });
+      }, 0);
     } else {
-      setFormData({ name: "", email: "", password: "", department: "", experties: "", maxStudents: 5 });
+      setTimeout(() => {
+        setFormData({ name: "", email: "", password: "", department: "", experties: "", maxStudents: 5 });
+      }, 0);
     }
   }, [editingTeacher, isOpen]);
   const handleSubmit = (e) => {

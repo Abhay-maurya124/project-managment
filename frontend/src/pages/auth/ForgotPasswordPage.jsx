@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { Lock, Loader2, Eye, EyeOff } from "lucide-react";
 import { forgetpassword } from "../../store/slices/authSlice";
+import { toast } from "react-toastify";
 const ForgotPasswordPage = () => {
   const { token } = useParams();
   const navigate = useNavigate();

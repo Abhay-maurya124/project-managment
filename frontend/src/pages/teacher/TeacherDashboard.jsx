@@ -4,7 +4,7 @@ import { getTeacherStats } from "../../store/slices/teacherSlice";
 import { Clock, CheckCircle, Bell } from "lucide-react";
 const TeacherDashboard = () => {
   const dispatch = useDispatch();
-  const { dashboardStats, loading } = useSelector((state) => state.teacher);
+  const { dashboardStats } = useSelector((state) => state.teacher);
   useEffect(() => {
     dispatch(getTeacherStats());
   }, [dispatch]);

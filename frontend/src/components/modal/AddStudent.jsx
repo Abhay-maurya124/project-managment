@@ -6,14 +6,18 @@ const AddStudent = ({ isOpen, onClose, editingStudent }) => {
   const [formData, setFormData] = useState({ name: "", email: "", department: "" ,password:""});
   useEffect(() => {
     if (editingStudent) {
-      setFormData({
-        name: editingStudent.name || "",
-        email: editingStudent.email || "",
-        password: editingStudent.password || "",
-        department: editingStudent.department || "",
-      });
+      setTimeout(() => {
+        setFormData({
+          name: editingStudent.name || "",
+          email: editingStudent.email || "",
+          password: editingStudent.password || "",
+          department: editingStudent.department || "",
+        });
+      }, 0);
     } else {
-      setFormData({ name: "", email: "", department: "" });
+      setTimeout(() => {
+        setFormData({ name: "", email: "", department: "" });
+      }, 0);
     }
   }, [editingStudent]);
   const handleSubmit = (e) => {

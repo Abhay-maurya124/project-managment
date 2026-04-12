@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
@@ -12,11 +12,6 @@ const AdminDashboard = () => {
   const { Alluser = [] } = useSelector((state) => state.admin);
   const { projects: reduxProjects = [] } = useSelector((state) => state.project);
   const [stats, setStats] = useState(null);
-  useEffect(() => {
-    dispatch(getAlluser());
-    dispatch(fetchAllProjects());
-    fetchDashboardStats();
-  }, [dispatch]);
   const fetchDashboardStats = async () => {
     try {
       const { data } = await axiosInstance.get("/admin/fetch-dashboard-stats");
@@ -25,6 +20,13 @@ const AdminDashboard = () => {
       console.error("Stats fetch error", err);
     }
   };
+  useEffect(() => {
+    dispatch(getAlluser());
+    dispatch(fetchAllProjects());
+    setTimeout(() => {
+      fetchDashboardStats();
+    }, 0);
+  }, [dispatch]);
   const chartData = useMemo(() => {
     const projectList = stats?.stats?.pendingProjects || stats?.projects || [];
     if (projectList.length === 0) return [];
@@ -51,11 +53,11 @@ const AdminDashboard = () => {
       </div>
       <div className="max-w-7xl mx-auto px-8 -mt-16 space-y-8">
         <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-          <TopStat title="Total Students" value={stats?.stats?.totalStudents} Icon={GraduationCap} border="border-l-blue-400" bgColor="bg-blue-50" />
-          <TopStat title="Total Teachers" value={stats?.stats?.totalTeachers} Icon={Users} border="border-l-green-400" bgColor="bg-green-50" />
-          <TopStat title="Pending Requests" value={stats?.stats?.pendingRequests} Icon={AlertCircle} border="border-l-orange-400" bgColor="bg-orange-50" />
-          <TopStat title="Active Projects" value={reduxProjects.length} Icon={FolderKanban} border="border-l-yellow-400" bgColor="bg-yellow-50" />
-          <TopStat title="Completed" value={stats?.stats?.completeProjects} Icon={AlertCircle} border="border-l-red-400" bgColor="bg-red-50" />
+          <TopStat title="Total Students" value={stats?.stats?.totalStudents} icon={GraduationCap} border="border-l-blue-400" bgColor="bg-blue-50" />
+          <TopStat title="Total Teachers" value={stats?.stats?.totalTeachers} icon={Users} border="border-l-green-400" bgColor="bg-green-50" />
+          <TopStat title="Pending Requests" value={stats?.stats?.pendingRequests} icon={AlertCircle} border="border-l-orange-400" bgColor="bg-orange-50" />
+          <TopStat title="Active Projects" value={reduxProjects.length} icon={FolderKanban} border="border-l-yellow-400" bgColor="bg-yellow-50" />
+          <TopStat title="Completed" value={stats?.stats?.completeProjects} icon={AlertCircle} border="border-l-red-400" bgColor="bg-red-50" />
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 bg-white p-6 rounded-xl shadow-sm border border-gray-100">
@@ -115,9 +117,11 @@ const AdminDashboard = () => {
     </div>
   );
 };
-const TopStat = ({ title, value, Icon, border, bgColor }) => (
+const TopStat = ({ title, value, icon, border, bgColor }) => (
   <div className={`bg-white p-4 rounded-lg shadow-sm border-l-4 ${border} flex items-center gap-4`}>
-    <div className={`p-3 rounded-lg ${bgColor}`}><Icon size={20} className="text-gray-700" /></div>
+    <div className={`p-3 rounded-lg ${bgColor}`}>
+      {React.createElement(icon, { size: 20, className: "text-gray-700" })}
+    </div>
     <div>
       <p className="text-[11px] font-bold text-gray-500 uppercase tracking-wider">{title}</p>
       <p className="text-xl font-bold text-gray-800">{value || 0}</p>
