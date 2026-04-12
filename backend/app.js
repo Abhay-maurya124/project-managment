@@ -16,7 +16,7 @@ config();
 const app = express();
 app.use(
   cors({
-    origin: [process.env.FRONT_URL],
+    origin: [process.env.FRONT_URL, "https://projectmanagementabhay.netlify.app", "http://localhost:5173", "http://localhost:5174"],
     methods: ["GET", "PUT", "DELETE", "POST"],
     credentials: true,
   }),
