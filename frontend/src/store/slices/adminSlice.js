@@ -202,7 +202,7 @@ const adminSlice = createSlice({
           action.type.endsWith("/deleteStudent/fulfilled") ||
           action.type.endsWith("/deleteTeacher/fulfilled"),
         (state, action) => {
-          state.users = state.Alluser.filter((u) => u._id !== action.payload);
+          state.Alluser = state.Alluser.filter((u) => u._id !== action.payload);
         },
       );
   },
